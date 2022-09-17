@@ -1,0 +1,33 @@
+Column Name|Full Name|Type|Description
+id|ID|dbl|Identification number for patient/sample
+diagnosis|Diagnosis|fct|The class label of the breast mass with "B" = "Benign" and "M = "malignant"
+radius_mean|Mean Radius|dbl|The mean of the radius'; A radius is the mean of distances from center to points on the perimeter
+texture_mean|Mean Texture|dbl|The mean of the textures; Texture is the standard deviation of gray-scale values
+perimeter_mean|Mean Perimeter|dbl|The mean of the perimeters; 
+area_mean|Mean Area|dbl|The mean of the areas; 
+smoothness_mean|Mean Smoothness|dbl|The mean of the smoothnesses; Smoothness is the local variation in radius lengths
+compactness_mean|Mean Compactness|dbl|The mean of the compactnesses; Compactness is calculated with: `perimeter^2 / area - 1.0`
+concavity_mean|Mean Concavity|dbl|The mean of the concavities; Concavity is the severity of concave portions of the contour
+concave_pts_mean|Mean Concave Points|dbl|The mean of the concave points; The concave points are the number of concave portions of the contour
+symmetry_mean|Mean Symmetry|dbl|The mean of the symmetries; 
+fractal_dim_mean|Mean Fractal Dimension|dbl|The mean of the fractal dimensions; Fractal dimension is calculated as: `"coastline approximation" - 1`
+radius_se|Radius Standard Error|dbl|Standard error of the radius'
+texture_se|Texture Standard Error|dbl|Standard error of the textures; Texture is the standard deviation of gray-scale values
+perimeter_se|Perimeter Standard Error|dbl|Standard error of the perimeters; 
+area_se|Area Standard Error|dbl|Standard error of the areas;
+smoothness_se|Smoothness Standard Error|dbl|Standard error of the smoothnesses; Smoothness is the local variation in radius lengths
+compactness_se|Compactness Standard Error|dbl|Standard error of the compactnesses; Compactness is calculated with: `perimeter^2 / area - 1.0`
+concavity_se|Concavity Standard Error|dbl|Standard error of the concavities; Concavity is the severity of concave portions of the contour
+concave_pts_se|Concave Points Standard Error|dbl|Standard error of the concave points; The concave points are the number of concave portions of the contour
+symmetry_se|Symmetry Standard Error|dbl|Standard error of the symmetries; 
+fractal_dim_se|Fractal Dimension Standard Error|dbl|Standard error of the fractal dimensions; Fractal dimension is calculated as: `"coastline approximation" - 1`
+radius_worst|Worst Radius|dbl|The mean of the "worst"/largest three radius'; A radius is the mean of distances from center to points on the perimeter
+texture_worst|Worst Texture|dbl|The mean of the "worst"/largest three textures; Texture is the standard deviation of gray-scale values
+perimeter_worst|Worst Perimeter|dbl|The mean of the "worst"/largest three perimeters; 
+area_worst|Worst Area|dbl|The mean of the "worst"/largest three area values;
+smoothness_worst|Worst Smoothness|dbl|The mean of the "worst"/largest three smoothness values; Smoothness is the local variation in radius lengths
+compactness_worst|Worst Compactness|dbl|The mean of the "worst"/largest three compactness values; Compactness is calculated with: `perimeter^2 / area - 1.0`
+concavity_worst|Worst Concavity|dbl|The mean of the "worst"/largest three concavity values; Concavity is the severity of concave portions of the contour
+concave_pts_worst|Worst Concave Points|dbl|The mean of the "worst"/largest three concave points; The concave points are the number of concave portions of the contour
+symmetry_worst|Worst Symmetry|dbl|The mean of the "worst"/largest three symmetry values; 
+fractal_dim_worst|Worst Fractal Dimension|dbl|The mean of the "worst"/largest three fractal dimension values; Fractal dimension is calculated as: `"coastline approximation" - 1`
