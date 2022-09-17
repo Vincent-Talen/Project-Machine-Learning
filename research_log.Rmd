@@ -1,0 +1,75 @@
+---
+title: "Research Log Project Machine Learning"
+subtitle: "Differentiating between benign and malignant samples of breast masses"
+output: pdf_document
+header-includes:
+   - \pagenumbering{gobble}
+   - \usepackage{longtable}
+   - \usepackage{hyperref}
+---
+
+```{r setup, include=FALSE}
+# Set code chunks visibility in pdf output to true
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(fig.align = "center")
+
+# Create vector with all packages that will be used
+packages <- c("readr", "ggplot2", "gridExtra", "scales", "ggpubr", "reshape2")
+# Load each package in the vector with lapply
+invisible(lapply(packages, library, character.only = TRUE))
+# Drop the packages variable from memory since it will not be used again
+remove(packages)
+```
+
+
+<!-- (Front page) -->
+\vspace{350pt}
+
+\hfill \textbf{Student}: Vincent Talen  
+
+\hfill \textbf{Student number}: 389015  
+
+\hfill \textbf{Class}: BFV3
+
+\hfill \textbf{Study}: Bio-Informatics
+
+\hfill \textbf{Institute}: Institute for Life Science & Technology
+
+\hfill \textbf{Teachers}: Dave Langers (LADR) and Bart Barnard (BABA)
+
+\hfill \textbf{Date}: `r Sys.Date()`
+
+\newpage
+<!-- (Table of contents) -->
+\setcounter{secnumdepth}{2}
+\tableofcontents
+\pagenumbering{arabic}
+
+\newpage
+<!-- (Data Set) -->
+# Data Set
+
+## What the data looks like
+To easily annotate figures and to better understand and distinguish the data a codebook was manually created. This codebook will now be imported and the explanations of the multiple columns shown.
+```{r import codebook}
+# Import codebook
+codebook <- read_delim("data/codebook.txt", delim = "|")
+codebook[,c(1,4)]
+```
+
+## Loading in the data
+```{r load data from file}
+# Load in data from file
+data <- read_csv("data/wdbc.data", col_names = codebook[[1]])
+data
+```
+
+<!-- (References) -->
+\newpage
+\begin{thebibliography}{9}
+
+\bibitem{street93}
+W.N. Street, W.H. Wolberg and O.L. Mangasarian. (1993), \textit{Nuclear feature extraction for breast tumor diagnosis.}, 1993 International Symposium on Electronic Imaging: Science and Technology, volume 1905, pages 861-870, \url{http://rexa.info/paper/b98475235164960529ad2ff9fda3816e9335cf8a} (accessed Sep 16, 2022).
+
+\end{thebibliography}
