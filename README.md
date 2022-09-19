@@ -5,14 +5,13 @@ Performing an Exploratory Data Analysis on a chosen data set and creating a Mach
 
 
 ## About the project
-The goal of this project is to create and learn about Machine Learning Algorithms. Multiple topics and competences are involved in this process, including an initial Exploratory Data Analysis on the data set, keeping a research log to make sure everything is reproducible and the creation of a Java wrapper around the final machine learning algorithm.
+The goal of this project is to create and learn about Machine Learning Algorithms. Multiple topics and competences are involved in this process, including an initial Exploratory Data Analysis on the data set, keeping a research log to make sure everything is reproducible and the creation of a Java wrapper around the final machine learning algorithm.  
 At the end a scientific report is written that discusses the data exploration, the strategy and methodology of benchmarking, performance and optimization in relation to machine learning algorithms. Another important aspect of the project is the ability to critically look at work that has been done, and thus giving and receiving peer feedback.
 
 
 ## Chosen Data Set and Research
-The [Breast Cancer Wisconsin (Diagnostic)](https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+%28Diagnostic%29) has been chosen for use in this project.
-To easily and accurately diagnose breast cancer with just a fine needle aspiration (FNA) taken from a breast mass, ten visually assessed characteristics were identified that were relevant to diagnosis. 
-Data was gathered by scanning a sample from the FNA after staining so the cell nuclei were highlighted, the boundaries of all individual nuclei were marked and the nuclei thus isolated from each other. A program then computed values for each of ten characteristics of each nuclei, measuring size, shape and texture. After that the mean, standard error and worst extreme values of these features were computed, resulting in a total of 30 nuclear features for each sample. 
+The [Breast Cancer Wisconsin (Diagnostic)](https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+%28Diagnostic%29) data set has been chosen to do this project about. It was created to easily and accurately diagnose breast masses with just a fine needle aspiration (FNA), ten visually assessed characteristics were identified that were relevant to diagnosis.  
+Data was gathered by scanning a sample from the FNA after staining so the cell nuclei were highlighted, the boundaries of all individual nuclei were marked and the nuclei thus isolated from each other. A program then computed values for each of ten characteristics of each nuclei, measuring size, shape and texture. After that the mean, standard error and worst extreme values of these features were computed, resulting in a total of 30 nuclear features for each sample.  
 The full data set consists of 569 cases and was used to train an algorithm that can classify and differentiate between benign and malignant FNA samples of breast masses.
 
 
@@ -45,7 +44,7 @@ This research log has all the steps taken from the entire process, from the init
 To properly report on all findings this report has been written, it gets into all the results and discusses any complications encountered or what could be improved when reproducing this project. A project proposal is also included for a possible project for the minor Application Design from the Bioinformatics Bachelor at the Hanze.
 
 ### / data
-The publicly available data set was downloaded and placed in the data directory for easy access, these are the `wdbc.data` and `wdbc.names` files. Because the data file does not have a header line, a codebook was created to use in tandem with the data, enabling to easily set column names, graph titles or axis labels.
+The publicly available data set was downloaded and placed in the data directory for easy access, these are the `wdbc.data` and `wdbc.names` files. Because the data file does not have a header line, a codebook was created to use in tandem with the data, enabling to easily set column names, graph titles or axis labels.  
 The `algorithms_performance.csv` contains the performance data, such as speed, accuracy and the confusion matrix, of all tested and tried out algorithms.
 
 ### / report_dependencies
@@ -82,3 +81,10 @@ if(length(missing_packages)) install.packages(missing_packages)
 ## Useful links
 * [Project Info Page](https://michielnoback.github.io/bincourses/data_mining_project.html)
 * [Link to data set on UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+%28Diagnostic%29)
+* [PDF of original article about data set](https://minds.wisconsin.edu/bitstream/handle/1793/59692/TR1131.pdf)
+* [Secondary article by same authors](https://web.s.ebscohost.com/ehost/pdfviewer/pdfviewer?vid=0&sid=aa260cd7-be09-40bc-8e33-712388e26929%40redis)
+
+
+## Contact
+Vincent Talen
+v.k.talen@st.hanze.nl

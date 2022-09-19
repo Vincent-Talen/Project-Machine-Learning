@@ -8,20 +8,6 @@ header-includes:
    - \usepackage{hyperref}
 ---
 
-```{r setup, include=FALSE}
-# Set code chunks visibility in pdf output to true
-knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_chunk$set(warning = FALSE)
-knitr::opts_chunk$set(fig.align = "center")
-
-# Create vector with all packages that will be used
-packages <- c("readr", "ggplot2", "gridExtra", "scales", "ggpubr", "reshape2")
-# Load each package in the vector with lapply
-invisible(lapply(packages, library, character.only = TRUE))
-# Drop the packages variable from memory since it will not be used again
-remove(packages)
-```
-
 
 <!-- (Front page) -->
 \vspace{350pt}
@@ -46,23 +32,50 @@ remove(packages)
 \tableofcontents
 \pagenumbering{arabic}
 
+
+\newpage
+<!-- (Setting up R) -->
+# Setting up R
+For the data analysis and further actions a couple of libraries are needed, they are loaded in here.
+A few other options/settings are also configured here.
+```{r setup}
+# Set code chunks visibility in pdf output to true
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(fig.align = "center")
+
+# Create vector with all packages that will be used
+packages <- c("readr", "ggplot2", "gridExtra", "scales", "ggpubr", "reshape2")
+# Load each package in the vector with lapply
+invisible(lapply(packages, library, character.only = TRUE))
+# Drop the packages variable from memory since it will not be used again
+remove(packages)
+```
+
 \newpage
 <!-- (Data Set) -->
 # Data Set
+## Origin of the data
+Van onderzoekje jwz.
 
-## What the data looks like
+## Structure of data set
 To easily annotate figures and to better understand and distinguish the data a codebook was manually created. This codebook will now be imported and the explanations of the multiple columns shown.
 ```{r import codebook}
 # Import codebook
-codebook <- read_delim("data/codebook.txt", delim = "|")
+codebook <- read_delim("data/codebook.txt", delim = "|", show_col_types = FALSE)
 codebook[,c(1,4)]
 ```
 
 ## Loading in the data
 ```{r load data from file}
 # Load in data from file
-data <- read_csv("data/wdbc.data", col_names = codebook[[1]])
-data
+data <- read_csv("data/wdbc.data", col_names = codebook[[1]], show_col_types = FALSE)
+head(data)
+```
+
+```{r data amount}
+# Print the amount of samples and columns
+cat("Amount of samples:", dim(data)[1], "\tColumns in dataframe", dim(data)[2])
 ```
 
 <!-- (References) -->
@@ -70,6 +83,6 @@ data
 \begin{thebibliography}{9}
 
 \bibitem{street93}
-W.N. Street, W.H. Wolberg and O.L. Mangasarian. (1993), \textit{Nuclear feature extraction for breast tumor diagnosis.}, 1993 International Symposium on Electronic Imaging: Science and Technology, volume 1905, pages 861-870, \url{http://rexa.info/paper/b98475235164960529ad2ff9fda3816e9335cf8a} (accessed Sep 16, 2022).
+W.N. Street, W.H. Wolberg and O.L. Mangasarian. (1993), \textit{Nuclear feature extraction for breast tumor diagnosis.}, 1993 International Symposium on Electronic Imaging: Science and Technology, volume 1905, pages 861-870, \url{https://minds.wisconsin.edu/bitstream/handle/1793/59692/TR1131.pdf} (accessed Sep 16, 2022).
 
 \end{thebibliography}
