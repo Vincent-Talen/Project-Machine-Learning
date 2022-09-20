@@ -36,7 +36,7 @@ header-includes:
 \newpage
 <!-- (Setting up R) -->
 # Setting up R
-For the data analysis and further actions a couple of libraries are needed, they are loaded in here.
+For the data analysis and further processes multiple libraries are needed, they are loaded in here.
 A few other options/settings are also configured here.
 ```{r setup}
 # Set code chunks visibility in pdf output to true
@@ -45,7 +45,7 @@ knitr::opts_chunk$set(warning = FALSE)
 knitr::opts_chunk$set(fig.align = "center")
 
 # Create vector with all packages that will be used
-packages <- c("readr", "ggplot2", "gridExtra", "scales", "ggpubr", "reshape2")
+packages <- c("pander", "readr", "ggplot2", "gridExtra", "scales", "ggpubr", "reshape2")
 # Load each package in the vector with lapply
 invisible(lapply(packages, library, character.only = TRUE))
 # Drop the packages variable from memory since it will not be used again
@@ -55,27 +55,58 @@ remove(packages)
 \newpage
 <!-- (Data Set) -->
 # Data Set
-## Origin of the data
-Van onderzoekje jwz.
+The data set that will be used for this project is the [Wisconsin Breast Cancer (Diagnostic) Data Set](https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+%28Diagnostic%29), publicly available from the UCI Machine Learning Repository.  
+Diagnosing if breast masses/lumps are benign or malignant, and thus if they are breast cancer, was done by full biopsies, which are invasive surgical procedures. 
+So the researchers wanted a faster and less invasive way to diagnose breast cancer. A promising technique was to take fine needle aspirate fluid samples from the breast mass and then look at the cells under a microscope, the diagnosis would then be based on the characteristics and contextual features of the cells that could visually be seen. This gave mixed results because it was highly subjective and depended a lot on the skill of the physician.  
+To make this process faster, improve the correctness and objectivity of the diagnosis process, image processing and machine learning techniques were used.
 
-## Structure of data set
+## Origin of the data
+The data was gathered by first collecting the fine needle aspirates, which are expressed on a glass slide and stained. A color video camera mounted on top of a microscope, where the images were projected into the camera with a 63x objective and 2.5x ocular. The image is then captured by a color frame grabber board as a 512x480, 8-bit-per-pixel Targa file.  
+The digitized image is then analyzed in the program Xcyt (made by Nick Street), where the boundaries of the nuclei are marked by the user and the features then further computed and extracted. The features are numerically modeled such that larger values will typically indicate a higher likelihood of malignancy.
+
+## Data structure
+The full data set consists of 569 cases and has the class label 'Diagnosis', with all cases labeled as either benign or malignant.
+From the digitized image 10 features are extracted for each nucleus, namely the following:
+
+ 1. Radius (mean of distances from center to points on the perimeter)
+ 2. Texture (standard deviation of gray-scale values)
+ 3. Perimeter (total distance between points of marked boundary)
+ 4. Area
+ 5. Smoothness (local variation in radius lengths)
+ 6. Compactness (perimeter^2 / area - 1.0)
+ 7. Concavity (severity of concave portions of the contour)
+ 8. Concave points (number of concave portions of the contour)
+ 9. Symmetry
+10. Fractal dimension ("coastline approximation" - 1)
+
 To easily annotate figures and to better understand and distinguish the data a codebook was manually created. This codebook will now be imported and the explanations of the multiple columns shown.
 ```{r import codebook}
 # Import codebook
 codebook <- read_delim("data/codebook.txt", delim = "|", show_col_types = FALSE)
-codebook[,c(1,4)]
+# codebook[,c(1,4)]
+# Disable printing 'table continues' lines between split sections of the table
+panderOptions("table.continues", "")
+# Pretty print the summary of the data frame
+pander::pander(codebook[,1:3], style = "rmarkdown")
 ```
 
 ## Loading in the data
 ```{r load data from file}
-# Load in data from file
+# Load in data from file with codebook column names
 data <- read_csv("data/wdbc.data", col_names = codebook[[1]], show_col_types = FALSE)
-head(data)
+# Set diagnosis column to factor
+data$diagnosis <- factor(data$diagnosis, labels = c("Benign", "Malignant"))
+
+# Print data to check if it is loaded in correctly
+pander::pander(head(data[,c(1:6, 12:16, 22:26)]))
 ```
 
 ```{r data amount}
 # Print the amount of samples and columns
-cat("Amount of samples:", dim(data)[1], "\tColumns in dataframe", dim(data)[2])
+cat("Amount of samples:", dim(data)[1], "\tColumns in dataframe", dim(data)[2], "\n")
+
+# Print diagnosis counts
+table(data$diagnosis)
 ```
 
 <!-- (References) -->

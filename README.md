@@ -86,5 +86,5 @@ if(length(missing_packages)) install.packages(missing_packages)
 
 
 ## Contact
-Vincent Talen
+Vincent Talen  
 v.k.talen@st.hanze.nl
