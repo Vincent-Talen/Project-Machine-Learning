@@ -1,6 +1,6 @@
 ---
 title: "Research Log Project Machine Learning"
-subtitle: "Differentiating between benign and malignant samples of breast masses"
+subtitle: "Diagnosing malignancy of breast masses using Machine Learning"
 output: pdf_document
 header-includes:
    - \pagenumbering{gobble}
@@ -8,6 +8,12 @@ header-includes:
    - \usepackage{hyperref}
 ---
 
+```{r chunk options, include = FALSE}
+# Set code chunks visibility in pdf output to true
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(fig.align = "center")
+```
 
 <!-- (Front page) -->
 \vspace{350pt}
@@ -18,7 +24,7 @@ header-includes:
 
 \hfill \textbf{Class}: BFV3
 
-\hfill \textbf{Study}: Bio-Informatics
+\hfill \textbf{Study}: Bioinformatics
 
 \hfill \textbf{Institute}: Institute for Life Science & Technology
 
@@ -35,60 +41,63 @@ header-includes:
 
 \newpage
 <!-- (Setting up R) -->
-# Setting up R
+# Preparing R environment
 For the data analysis and further processes multiple libraries are needed, they are loaded in here.
 A few other options/settings are also configured here.
-```{r setup}
-# Set code chunks visibility in pdf output to true
-knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_chunk$set(warning = FALSE)
-knitr::opts_chunk$set(fig.align = "center")
 
-# Create vector with all packages that will be used
-packages <- c("pander", "readr", "ggplot2", "gridExtra", "scales", "ggpubr", "reshape2")
+```{r preparing r environment}
+# Create vector with all packages that are required
+packages <- c("readr", "pander", "ggplot2")
 # Load each package in the vector with lapply
 invisible(lapply(packages, library, character.only = TRUE))
 # Drop the packages variable from memory since it will not be used again
 remove(packages)
+
+# Disable printing 'table continues' lines between split sections of pander tables
+panderOptions("table.continues", "")
 ```
 
 \newpage
 <!-- (Data Set) -->
 # Data Set
-The data set that will be used for this project is the [Wisconsin Breast Cancer (Diagnostic) Data Set](https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+%28Diagnostic%29), publicly available from the UCI Machine Learning Repository.  
-Diagnosing if breast masses/lumps are benign or malignant, and thus if they are breast cancer, was done by full biopsies, which are invasive surgical procedures. 
-So the researchers wanted a faster and less invasive way to diagnose breast cancer. A promising technique was to take fine needle aspirate fluid samples from the breast mass and then look at the cells under a microscope, the diagnosis would then be based on the characteristics and contextual features of the cells that could visually be seen. This gave mixed results because it was highly subjective and depended a lot on the skill of the physician.  
-To make this process faster, improve the correctness and objectivity of the diagnosis process, image processing and machine learning techniques were used.
-
 ## Origin of the data
-The data was gathered by first collecting the fine needle aspirates, which are expressed on a glass slide and stained. A color video camera mounted on top of a microscope, where the images were projected into the camera with a 63x objective and 2.5x ocular. The image is then captured by a color frame grabber board as a 512x480, 8-bit-per-pixel Targa file.  
-The digitized image is then analyzed in the program Xcyt (made by Nick Street), where the boundaries of the nuclei are marked by the user and the features then further computed and extracted. The features are numerically modeled such that larger values will typically indicate a higher likelihood of malignancy.
+The data set that is used is the *[Wisconsin Breast Cancer (Diagnostic) Data Set](https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+%28Diagnostic%29)*, which is publicly available from the UCI Machine Learning Repository. There are two published research articles, from the same team of researchers, where the data set was first used, namely \cite{street93} and \cite{mangasarian95}. The samples for the data were collected from 569 patients at the University of Wisconsin Hospital.
 
-## Data structure
-The full data set consists of 569 cases and has the class label 'Diagnosis', with all cases labeled as either benign or malignant.
-From the digitized image 10 features are extracted for each nucleus, namely the following:
+
+## Collection of the data
+The data was gathered by first collecting the fine needle aspirates (FNA), which are expressed on a glass slide and stained. A color video camera mounted on top of a microscope, where the images were projected into the camera with a 63x objective and 2.5x ocular. The image was then captured by a color frame grabber board as a 512x480, 8-bit-per-pixel Targa file.  
+The digitized image is then analyzed in the program Xcyt (custom made by Nick Street). First the user marks approximate initial boundaries of the nuclei and then the actual boundaries are further defined with an active contour model known as "Snake". In the end the snake reaches a point where it's curve accurately corresponds to the boundary of a cell nucleus. From the snake-generated cell nuclei boundaries 10 features are extracted, these are numerically modeled such that larger values will typically indicate a higher likelihood of malignancy. 
+
+The ten features that are extracted for each cell nucleus are the following:
 
  1. Radius (mean of distances from center to points on the perimeter)
  2. Texture (standard deviation of gray-scale values)
- 3. Perimeter (total distance between points of marked boundary)
- 4. Area
+ 3. Perimeter (the total distance between all the points of the snake-generated boundary)
+ 4. Area (the nuclear area is the sum of pixels on the interior, with half of the pixels of the perimeter)
  5. Smoothness (local variation in radius lengths)
  6. Compactness (perimeter^2 / area - 1.0)
  7. Concavity (severity of concave portions of the contour)
  8. Concave points (number of concave portions of the contour)
- 9. Symmetry
+ 9. Symmetry (difference in length of perpendicular lines to the longest chord through the center, in both directions)
 10. Fractal dimension ("coastline approximation" - 1)
 
-To easily annotate figures and to better understand and distinguish the data a codebook was manually created. This codebook will now be imported and the explanations of the multiple columns shown.
+For each feature for every image, three final values were computed and saved to the data set, namely the mean, standard error and the extreme (largest) value.
+
+
+## Data structure
+FNA samples were taken from 569 patients, resulting in a data set with features of nuclei boundaries from 569 images and 32 columns. An ID column, a column with the diagnosis (benign or malignant) and 30 columns of the features describing the nuclei boundaries (10x mean/extreme/se).  
+Because the data set itself does not come with an annotated header with column names, a codebook has been manually made. This codebook has the abbreviated column name, the full column name, the data type and a description for each feature/column.
+
+Below is an overview of the columns in the data set, shown using the contents of the codebook after it has been loaded in:
 ```{r import codebook}
 # Import codebook
 codebook <- read_delim("data/codebook.txt", delim = "|", show_col_types = FALSE)
-# codebook[,c(1,4)]
-# Disable printing 'table continues' lines between split sections of the table
-panderOptions("table.continues", "")
-# Pretty print the summary of the data frame
+# Pretty print the summary of the codebook
 pander::pander(codebook[,1:3], style = "rmarkdown")
 ```
+
+As can be seen, all the features are of the type double except the main classification factor column.
+
 
 ## Loading in the data
 ```{r load data from file}
@@ -114,6 +123,8 @@ table(data$diagnosis)
 \begin{thebibliography}{9}
 
 \bibitem{street93}
-W.N. Street, W.H. Wolberg and O.L. Mangasarian. (1993), \textit{Nuclear feature extraction for breast tumor diagnosis.}, 1993 International Symposium on Electronic Imaging: Science and Technology, volume 1905, pages 861-870, \url{https://minds.wisconsin.edu/bitstream/handle/1793/59692/TR1131.pdf} (accessed Sep 16, 2022).
+W.N. Street, W.H. Wolberg and O.L. Mangasarian. (1993), \textit{Nuclear feature extraction for breast tumor diagnosis.}, 1993 International Symposium on Electronic Imaging: Science and Technology, volume 1905, pages 861-870, \url{https://doi.org/10.1117/12.148698} (accessed Sep 16, 2022).
 
+\bibitem{mangasarian95}
+O.L. Mangasarian, W.N. Street and W.H. Wolberg. (1995), \textit{Breast cancer diagnosis and prognosis via linear programming}, Operations Research, volume 43, issue 4, pages 570-577, \url{https://doi.org/10.1287/opre.43.4.570} (accessed Sep 17, 2022).
 \end{thebibliography}

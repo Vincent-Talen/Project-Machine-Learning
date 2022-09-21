@@ -82,7 +82,7 @@ if(length(missing_packages)) install.packages(missing_packages)
 * [Project Info Page](https://michielnoback.github.io/bincourses/data_mining_project.html)
 * [Link to data set on UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+%28Diagnostic%29)
 * [PDF of original article about data set](https://minds.wisconsin.edu/bitstream/handle/1793/59692/TR1131.pdf)
-* [Secondary article by same authors](https://web.s.ebscohost.com/ehost/pdfviewer/pdfviewer?vid=0&sid=aa260cd7-be09-40bc-8e33-712388e26929%40redis)
+* [Secondary article by same authors](https://www.researchgate.net/profile/Nick-Street/publication/2302195_Breast_Cancer_Diagnosis_and_Prognosis_Via_Linear_Programming/links/54182c0b0cf25ebee9880a81/Breast-Cancer-Diagnosis-and-Prognosis-Via-Linear-Programming.pdf)
 
 
 ## Contact
