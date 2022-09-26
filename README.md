@@ -23,6 +23,7 @@ Project-Machine-Learning-Part1_Analysis
 ├── research_log.pdf
 ├── report.Rmd
 ├── report.pdf
+├── split_violin_plot.R
 ├── LICENSE
 ├── README.md
 ├── data
@@ -66,13 +67,13 @@ Make sure that before running or knitting any files the working directory is tha
 The following R packages are required for this project and should be installed through an R console using the `install.packages()` function:
 - data.table
 - ggpubr
-- gridExtra
-- reshape2
 - tidyverse
+- pander
+- ggplot2
 
 To easily install any missing packages the code below can be used instead, which should be pasted and run an R console:
 ```r
-required_packages <- c("data.table", "ggpubr", "gridExtra", "reshape2", "tidyverse")
+required_packages <- c("tidyverse", "pander", "ggplot2", "data.table", "ggpubr")
 missing_packages <- required_packages[!(required_packages %in% installed.packages()[,"Package"])]
 if(length(missing_packages)) install.packages(missing_packages)
 ```

@@ -45,26 +45,29 @@ knitr::opts_chunk$set(fig.align = "center")
 For the data analysis and further processes multiple libraries are needed, they are loaded in here.
 A few other options/settings are also configured here.
 
-```{r preparing r environment}
+```{r preparing r environment, message = FALSE}
 # Create vector with all packages that are required
-packages <- c("readr", "pander", "ggplot2")
+packages <- c("tidyverse", "pander", "ggplot2", "data.table", "ggpubr")
 # Load each package in the vector with lapply
 invisible(lapply(packages, library, character.only = TRUE))
 # Drop the packages variable from memory since it will not be used again
 remove(packages)
 
-# Disable printing 'table continues' lines between split sections of pander tables
+# Disable printing 'table continues' lines between split sections
 panderOptions("table.continues", "")
+# Change affix after table caption if it's a split table
+panderOptions("table.continues.affix", "(table continues below)")
 ```
 
 \newpage
-<!-- (Data Set) -->
-# Data Set
-## Origin of the data
-The data set that is used is the *[Wisconsin Breast Cancer (Diagnostic) Data Set](https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+%28Diagnostic%29)*, which is publicly available from the UCI Machine Learning Repository. There are two published research articles, from the same team of researchers, where the data set was first used, namely \cite{street93} and \cite{mangasarian95}. The samples for the data were collected from 569 patients at the University of Wisconsin Hospital.
+<!-- (Exploratory Data Analysis) -->
+# Exploratory Data Analysis
+## About the chosen data set
+### Origin of the data
+The data set that is used is the *[Wisconsin Breast Cancer (Diagnostic) Data Set](https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+%28Diagnostic%29)*, which is publicly available from the UCI Machine Learning Repository. There are two published research articles, from the same team of researchers, where the data set was first used, namely \cite{street93} and \cite{mangasarian95}. The samples for the data were collected from 569 patients at the University of Wisconsin Hospital with the goal of creating a machine learning model that was faster, improved the correctness and increased the objectivity of the diagnosis process of breast cancer. 
 
 
-## Collection of the data
+### Collection of the data
 The data was gathered by first collecting the fine needle aspirates (FNA), which are expressed on a glass slide and stained. A color video camera mounted on top of a microscope, where the images were projected into the camera with a 63x objective and 2.5x ocular. The image was then captured by a color frame grabber board as a 512x480, 8-bit-per-pixel Targa file.  
 The digitized image is then analyzed in the program Xcyt (custom made by Nick Street). First the user marks approximate initial boundaries of the nuclei and then the actual boundaries are further defined with an active contour model known as "Snake". In the end the snake reaches a point where it's curve accurately corresponds to the boundary of a cell nucleus. From the snake-generated cell nuclei boundaries 10 features are extracted, these are numerically modeled such that larger values will typically indicate a higher likelihood of malignancy. 
 
@@ -79,44 +82,129 @@ The ten features that are extracted for each cell nucleus are the following:
  7. Concavity (severity of concave portions of the contour)
  8. Concave points (number of concave portions of the contour)
  9. Symmetry (difference in length of perpendicular lines to the longest chord through the center, in both directions)
-10. Fractal dimension ("coastline approximation" - 1)
+10. Fractal dimension (approximated using Mandelbrot's "coastline approximation" - 1)
 
-For each feature for every image, three final values were computed and saved to the data set, namely the mean, standard error and the extreme (largest) value.
+For each feature and for every image, three final values were computed and saved to the data set, namely the mean, standard error and the extreme (largest) value.
 
 
-## Data structure
-FNA samples were taken from 569 patients, resulting in a data set with features of nuclei boundaries from 569 images and 32 columns. An ID column, a column with the diagnosis (benign or malignant) and 30 columns of the features describing the nuclei boundaries (10x mean/extreme/se).  
+### Data structure and codebook
+The data set has 569 instances/rows with 32 columns, an ID column, a classification column with the diagnosis (benign or malignant) and 30 columns describing the nuclei boundaries (10x mean/extreme/se).  
 Because the data set itself does not come with an annotated header with column names, a codebook has been manually made. This codebook has the abbreviated column name, the full column name, the data type and a description for each feature/column.
 
 Below is an overview of the columns in the data set, shown using the contents of the codebook after it has been loaded in:
 ```{r import codebook}
-# Import codebook
-codebook <- read_delim("data/codebook.txt", delim = "|", show_col_types = FALSE)
-# Pretty print the summary of the codebook
-pander::pander(codebook[,1:3], style = "rmarkdown")
+codebook <- readr::read_delim("data/codebook.txt", delim = "|", show_col_types = FALSE)
+
+# Pretty print the codebook (without descriptions) using pander
+pander::pander(codebook[,1:3], style = "rmarkdown", caption = "Overview of created codebook excluding descriptions")
 ```
 
-As can be seen, all the features are of the type double except the main classification factor column.
+As can be seen, all the features are of the type double except the main diagnosis classification factor.
 
-
-## Loading in the data
+\newpage
+## Loading in the data set
+The data will be loaded in with the `read_csv` function from the `readr` package, this function returns the data as a tibble data frame.
+This function allows a vector with column names to be given with an argument, the names from the column `Column Name` of the codebook will be used.
 ```{r load data from file}
-# Load in data from file with codebook column names
-data <- read_csv("data/wdbc.data", col_names = codebook[[1]], show_col_types = FALSE)
-# Set diagnosis column to factor
+data <- readr::read_csv("data/wdbc.data", col_names = codebook[[1]], show_col_types = FALSE)
+
+# Print the amount of samples and columns
+cat("Amount of samples:", dim(data)[1], "\tColumns in dataframe:", dim(data)[2], "\n")
+```
+The amount of samples and columns are as expected, so in this aspect the data set has been read correctly. However, what is more important is if the values are read correctly, since the values are that what is actually going to be used.
+
+```{r, include=FALSE}
+attr(data, "spec") <- NULL; attr(data, "problems") <- NULL
+```
+```{r print data structure}
+str(data)
+```
+Luckily it looks like the values for every column have correctly been read, but there is one thing that could still be changed; the diagnosis column. It would be more helpful if diagnosis was a factor and not just a character column.
+
+```{r data distribution, out.width = "75%", fig.cap = "Distribution of diagnosis classification"}
 data$diagnosis <- factor(data$diagnosis, labels = c("Benign", "Malignant"))
 
-# Print data to check if it is loaded in correctly
-pander::pander(head(data[,c(1:6, 12:16, 22:26)]))
+ggplot(data, aes(x = diagnosis, fill = diagnosis)) + geom_bar() + 
+  geom_text(stat='count', aes(label = after_stat(count)), nudge_y = -15) + 
+  scale_fill_hue(direction = 1, h.start=180)
+```
+There are more benign cases than malignant, this means the data set is not entirely balanced and could cause bias if not handled correctly.
+
+For the analysis and the creation of the machine learning model the ID column is not needed, it can therefore be dropped from the data frame.
+```{r drop id column}
+data <- dplyr::select(data, -id)
+colnames(data)
 ```
 
-```{r data amount}
-# Print the amount of samples and columns
-cat("Amount of samples:", dim(data)[1], "\tColumns in dataframe", dim(data)[2], "\n")
 
-# Print diagnosis counts
-table(data$diagnosis)
+\newpage
+## Data inspection
+### Checking for missing values
+A good understanding of what the data is like is important, namely how the data is distributed and if there is data corruption. Thing to check are if there are outliers and if there is any skewed or missing data.
+```{r check missing values}
+cat("Missing values:", any(is.na(data)))
 ```
+Luckily there are no missing values in the data set. But now it is good to get an idea of what the values of the columns look like, what ranges do they fall in? This is done by the function `summary()`, it will show basic statistics about the columns to create an overview.
+
+### Overall data summary
+```{r show summery of data}
+pander::pander(summary(data), caption = "Summary with basic statistics about the data colums")
+```
+By glancing over the summary created above a few things can be noticed and questions can arise, for example the `area_mean`, `concave_pts_mean`, `radius_se`, `perimeter_se` and `area_worst` columns. These, among other columns, have a wide range of values with their minimum or maximum values far from the quantiles or median.  
+This could mean that there are outliers in the data, the questions that arise because of this is if these points are actually outliers and if they should be excluded from the data. It can however not be determined with just the summary above if these are actually outliers and if they need to be removed. 
+
+### Visualizing data distribution
+To check if points are outliers the data needs to be visualized, this can be done by creating boxplots for the columns.
+```{r create plot functions}
+source("split_violin_plot.R")
+
+createSplitViolinPlot <- function(col_name) {
+  ggplot(data, aes(x = "", y = !!sym(col_name), fill = diagnosis)) +
+    geom_split_violin(alpha = 0.6, trim = FALSE) +
+    geom_boxplot(width = 0.2, alpha = 0.6, fatten = NULL, show.legend = F) +
+    stat_summary(fun.data = "mean_se", geom = "pointrange", show.legend = F, 
+                 position = position_dodge(0.2), size = 0.3) +
+    scale_fill_brewer(palette = "Dark2", name = "Diagnosis:") +
+    ggtitle(filter(codebook, `Column Name` == col_name)$`Full Name`) +
+    theme_minimal() + labs(y = NULL, x = NULL) + 
+    theme(plot.title = element_text(size = 9, hjust = 0.5))
+}
+
+createAndArrangePlots <- function(extension) {
+  # Create plots and put them in a list
+  plot_list <- lapply(colnames(data)[colnames(data) %like% extension], createSplitViolinPlot)
+  # Print the plots in an arranged grid with the legend at the bottom
+  ggpubr::ggarrange(plotlist = plot_list, ncol = 4, nrow = 3,
+                    common.legend = TRUE, legend = "bottom")
+}
+```
+
+```{r print _mean plots, fig.width = 7.5, fig.height = 9.5, fig.cap = "Split violin plots with boxplots of 'mean' feature columns"}
+createAndArrangePlots("_mean")
+```
+
+```{r print _se plots, fig.width = 7.5, fig.height = 9.5, fig.cap = "Split violin plots with boxplots of 'standard error' feature columns"}
+createAndArrangePlots("_se")
+```
+
+```{r print _worst plots, fig.width = 7.5, fig.height = 9.5, fig.cap = "Split violin plots with boxplots of 'worst/extreme' feature columns"}
+createAndArrangePlots("_worst")
+```
+Yes, much wow. Data go brr. Outliers not really, but very nice plot!
+
+### Data correlation
+Scatter plot (pairs plot), Heatmap of correlation matrix
+```{r correlation}
+
+```
+
+
+### Data clustering
+Tree, Scatter plot, PCA plot
+```{r clustering}
+
+```
+
 
 <!-- (References) -->
 \newpage

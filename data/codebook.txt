@@ -10,7 +10,7 @@ compactness_mean|Mean Compactness|dbl|Mean of the compactnesses; Compactness is 
 concavity_mean|Mean Concavity|dbl|Mean of the concavities; Concavity is the severity of concave portions of the contour
 concave_pts_mean|Mean Concave Points|dbl|Mean of the concave points; The concave points are the number of concave portions of the contour
 symmetry_mean|Mean Symmetry|dbl|Mean of the symmetries; Symmetry is calculated as the difference in length of perpendicular lines to the longest chord through the center, in both directions
-fractal_dim_mean|Mean Fractal Dimension|dbl|Mean of the fractal dimensions; Fractal dimension is calculated as: `"coastline approximation" - 1`
+fractal_dim_mean|Mean Fractal Dimension|dbl|Mean of the fractal dimensions; Fractal dimension is approximated using Mandelbrot's `"coastline approximation" - 1`
 radius_se|Radius Standard Error|dbl|Standard error of the radius'; A radius is the mean of distances from center to points on the perimeter
 texture_se|Texture Standard Error|dbl|Standard error of the textures; Texture is the standard deviation of gray-scale values
 perimeter_se|Perimeter Standard Error|dbl|Standard error of the perimeters; The perimeter is calculated as the total distance between all the points of the snake-generated boundary
@@ -20,7 +20,7 @@ compactness_se|Compactness Standard Error|dbl|Standard error of the compactnesse
 concavity_se|Concavity Standard Error|dbl|Standard error of the concavities; Concavity is the severity of concave portions of the contour
 concave_pts_se|Concave Points Standard Error|dbl|Standard error of the concave points; The concave points are the number of concave portions of the contour
 symmetry_se|Symmetry Standard Error|dbl|Standard error of the symmetries; Symmetry is calculated as the difference in length of perpendicular lines to the longest chord through the center, in both directions
-fractal_dim_se|Fractal Dimension Standard Error|dbl|Standard error of the fractal dimensions; Fractal dimension is calculated as: `"coastline approximation" - 1`
+fractal_dim_se|Fractal Dimension Standard Error|dbl|Standard error of the fractal dimensions; Fractal dimension is approximated using Mandelbrot's `"coastline approximation" - 1`
 radius_worst|Worst Radius|dbl|Worst/largest radius value; A radius is the mean of distances from center to points on the perimeter
 texture_worst|Worst Texture|dbl|Worst/largest texture value; Texture is the standard deviation of gray-scale values
 perimeter_worst|Worst Perimeter|dbl|Worst/largest perimeter value; The perimeter is calculated as the total distance between all the points of the snake-generated boundary
@@ -30,4 +30,4 @@ compactness_worst|Worst Compactness|dbl|Worst/largest compactness value; Compact
 concavity_worst|Worst Concavity|dbl|Worst/largest concavity value; Concavity is the severity of concave portions of the contour
 concave_pts_worst|Worst Concave Points|dbl|Worst/largest concave points value; The concave points are the number of concave portions of the contour
 symmetry_worst|Worst Symmetry|dbl|Worst/largest symmetry value; Symmetry is calculated as the difference in length of perpendicular lines to the longest chord through the center, in both directions
-fractal_dim_worst|Worst Fractal Dimension|dbl|Worst/largest fractal dimension value; Fractal dimension is calculated as: `"coastline approximation" - 1`
+fractal_dim_worst|Worst Fractal Dimension|dbl|Worst/largest fractal dimension value; Fractal dimension is approximated using Mandelbrot's `"coastline approximation" - 1`
