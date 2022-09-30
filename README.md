@@ -1,3 +1,8 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 # Introduction to Machine Learning (Part 1: Analysis)
 **Hanzehogeschool Groningen: Bioinformatics Project Year 3, Period 9**
 
@@ -23,7 +28,6 @@ Project-Machine-Learning-Part1_Analysis
 ├── research_log.pdf
 ├── report.Rmd
 ├── report.pdf
-├── split_violin_plot.R
 ├── LICENSE
 ├── README.md
 ├── data
@@ -31,11 +35,16 @@ Project-Machine-Learning-Part1_Analysis
 │   ├── codebook.txt
 │   ├── wdbc.data
 │   └── wdbc.names
-└── report_dependencies
-    ├── import.tex
-    ├── title.tex
-    ├── abstract.tex
-    └── references.bib
+└── src
+    ├── scripts
+    │   └── split_violin_plot.R
+    └── report_subfiles
+        ├── abbreviations.tex
+        ├── abstract.tex
+        ├── after_body.Rmd
+        ├── before_body.tex
+        ├── import.tex
+        └── references.bib
 ```
 
 ### research_log(.Rmd/.pdf)
@@ -48,8 +57,10 @@ To properly report on all findings this report has been written, it gets into al
 The publicly available data set was downloaded and placed in the data directory for easy access, these are the `wdbc.data` and `wdbc.names` files. Because the data file does not have a header line, a codebook was created to use in tandem with the data, enabling to easily set column names, graph titles or axis labels.  
 The `algorithms_performance.csv` contains the performance data, such as speed, accuracy and the confusion matrix, of all tested and tried out algorithms.
 
-### / report_dependencies
-To keep the report text file itself as clean as possible, everything other than the actual article text is placed in a sub-directory in separate files. This way all the formatting and code does not clutter the text and makes it easier to find everything.
+### / src
+The `src` directory houses the `scripts` and `report_subfiles` sub-directories where files are placed so the repository is uncluttered.
+- `/report_subfiles`: To keep the report text file itself as clean as possible, everything other than the actual article text is split up in separate files and these are located in the sub-directory `report_subfiles`. This way all the formatting and code does not clutter the text and makes it easier to find everything. 
+- `/scripts`: The same principle is used for all `.R` functions and scripts used in this project, these will be put in the `scripts` directory.
 
 
 ## Installation
