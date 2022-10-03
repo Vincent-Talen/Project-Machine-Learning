@@ -1,8 +1,3 @@
----
-output:
-  pdf_document: default
-  html_document: default
----
 # Introduction to Machine Learning (Part 1: Analysis)
 **Hanzehogeschool Groningen: Bioinformatics Project Year 3, Period 9**
 
@@ -81,12 +76,14 @@ The following R packages are required for this project and should be installed t
 - tidyverse
 - pander
 - ggplot2
+- ggbiplot (might need to download from GitHub using 'remotes' package)
 
 To easily install any missing packages the code below can be used instead, which should be pasted and run an R console:
 ```r
-required_packages <- c("tidyverse", "pander", "ggplot2", "data.table", "ggpubr")
+required_packages <- c("tidyverse", "pander", "ggplot2", "data.table", "ggpubr", "remotes")
 missing_packages <- required_packages[!(required_packages %in% installed.packages()[,"Package"])]
 if(length(missing_packages)) install.packages(missing_packages)
+remotes::install_github("vqv/ggbiplot")
 ```
 
 

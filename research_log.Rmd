@@ -6,11 +6,13 @@ header-includes:
    - \pagenumbering{gobble}
    - \usepackage{longtable}
    - \usepackage{hyperref}
+   - \usepackage[nottoc]{tocbibind}
 ---
 
 ```{r setup, include = FALSE}
 # Set code chunks visibility in pdf output to true
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(cache = TRUE)
 knitr::opts_chunk$set(warning = FALSE)
 knitr::opts_chunk$set(fig.align = "center")
 ```
@@ -33,13 +35,19 @@ knitr::opts_chunk$set(fig.align = "center")
 \hfill \textbf{Date}: `r Sys.Date()`
 
 \newpage
+\pagenumbering{roman}
 <!-- (Table of contents) -->
 \setcounter{secnumdepth}{2}
+\renewcommand{\contentsname}{Table of Contents}
 \tableofcontents
+<!-- (LISTS OF FIGURES AND TABLES) -->
+\newpage
+\listoffigures
+\listoftables
+<!-- (MAIN ARTICLE CONTENT PAST THIS) -->
+\newpage
 \pagenumbering{arabic}
 
-
-\newpage
 <!-- (Setting up R) -->
 # Preparing R environment
 For the data analysis and further processes multiple libraries are needed, they are loaded in here.
@@ -47,7 +55,7 @@ A few other options/settings are configured and used scripts also loaded.
 
 ```{r preparing r environment, message = FALSE}
 # Load required packages from vector using invisible and lapply
-packages <- c("tidyverse", "pander", "ggplot2", "data.table", "ggpubr")
+packages <- c("tidyverse", "pander", "ggplot2", "data.table", "ggpubr", "ggbiplot")
 invisible(lapply(packages, library, character.only = TRUE))
 remove(packages) # Drop variable since it will not be used again
 
@@ -95,7 +103,8 @@ Below is an overview of the columns in the dataset, shown using the contents of 
 codebook <- readr::read_delim("data/codebook.txt", delim = "|", show_col_types = FALSE)
 
 # Pretty print the codebook (without descriptions) using pander
-pander::pander(codebook[, 1:3], style = "rmarkdown", caption = "Overview of created codebook excluding descriptions")
+pander::pander(codebook[, 1:3], style = "rmarkdown", 
+               caption = "Overview of created codebook excluding descriptions")
 ```
 
 As can be seen, all the features are of the type double except the main diagnosis classification factor.
@@ -124,18 +133,19 @@ Luckily it looks like the values for every column have correctly been read, but 
 data$diagnosis <- factor(data$diagnosis, labels = c("Benign", "Malignant"))
 
 ggplot(data, aes(x = diagnosis, fill = diagnosis)) + geom_bar() + 
-  geom_text(stat='count', aes(label = after_stat(count)), nudge_y = -15) + 
+  geom_text(stat = "count", aes(label = after_stat(count)), nudge_y = -15) + 
   scale_fill_hue(direction = 1, h.start = 180) +
-  ggtitle("Barplot of diagnosis column")
+  ggtitle("Barplot of diagnosis classification factor")
 ```
 There are more benign cases than malignant, this means the dataset is not entirely balanced and could cause bias if not handled correctly.
 
 The dataset has the `id` column, this column is not needed for the analysis that will be performed so it will therefore be dropped from the data frame. The `id` column could even cause small a hiccup when creating the machine learning model, since all the values are unique the model could use that as the only feature to predict the classification label. This would of course not work since unseen data will not have the same id's as the data used for training the machine learning algorithm.
 ```{r drop id column}
 data <- dplyr::select(data, -id)
-colnames(data)
+cat( sprintf("ID column present?: %s", "id" %in% colnames(data)) )
 ```
 
+\newpage
 ## Data inspection
 It is important to have a good understanding of what the data is like, for example how the data is distributed and if there is data corruption. A few things that should be checked are if there are any outliers present, any data is skewed (an asymmetry in data distribution) or if there is any missing data.
 ```{r check missing values}
@@ -150,13 +160,17 @@ pander::pander(summary(data), caption = "Summary with basic statistics about the
 By glancing over the summary created above a few things can be noticed and questions can arise, for example the `area_mean`, `concave_pts_mean`, `radius_se`, `perimeter_se` and `area_worst` columns. These, among other columns, have a wide range of values with their minimum or maximum values far from the quantiles or median.  
 This could mean that there are outliers in the data, the questions that arise because of this is if these points are actually outliers and if they should be excluded from the data. It can however not be determined with just the summary above if these are actually outliers and if they need to be removed. 
 
-### Univariate analysis
+## Univariate analysis
 To check if points are outliers the data needs to be visualized, this can be done by creating a box plot and/or density plot for each of the columns.
 Creating them separately for all 30 feature columns would result in 60 plots, which is a lot and perhaps too many. To reduce the amount of total plots, the density plots will instead be visualized using violin plots with the box plots inside of them. Because printing all the data of a feature column in a single box or violin does not show what is desired, the plots will be split on the diagnosis classification factor.
 
 There is not a function in `ggplot` to create these split violin plots, the source code file `src/scripts/split_violin_plot.R` contains a function that uses ggplot as a basis to create split violin plots. Then, using this function from the source file, another function is created that assembles the full plot including the box plot, plot title and themes. After this a list of column names can be given and a plot will be generated for each of them and they will the be arranged with a common legend to the output file. So there is a clearer overview where the data can be compared the plots for the feature columns will be split on their specification, resulting in three arranged layouts with the mean-, standard error- and worst plots.
 
 ```{r create plot functions}
+getColumnFullName <- function(col_name) {
+  return(dplyr::filter(codebook, `Column Name` == col_name)$`Full Name`)
+}
+
 createFeaturePlot <- function(col_name, figure_tab) {
   plot <- ggplot(data, aes(x = "", y = !!sym(col_name), fill = diagnosis)) +
     geom_split_violin(alpha = 0.6, trim = FALSE) +
@@ -164,7 +178,7 @@ createFeaturePlot <- function(col_name, figure_tab) {
     stat_summary(fun.data = "mean_se", geom = "pointrange", show.legend = F, 
                  position = position_dodge(0.2), size = 0.3) +
     scale_fill_brewer(palette = "Dark2", name = "Diagnosis:") +
-    ggtitle(dplyr::filter(codebook, `Column Name` == col_name)$`Full Name`) +
+    ggtitle( getColumnFullName(col_name) ) +
     theme_minimal() + labs(y = NULL, x = NULL, tag = figure_tab) + 
     theme(plot.title = element_text(size = 9, face = "bold"))#, hjust = 0.5))
   return(list(plot))
@@ -181,6 +195,9 @@ createPlotGrid <- function(extension) {
 }
 ```
 
+With these functions the spits violin plots can easily be made as three plot grids with the `createPlotGrid()` function, split by the three nuclei features. Then the grids will be annotated with a plot title and then they are done.
+
+\newpage
 ```{r _mean plots, fig.width = 7.5, fig.height = 9.5, fig.cap = "Split violin plots showing density joined with box plots showing quartiles and outliers, for all 'mean' feature columns"}
 # Create split violin plots for all mean feature columns
 ggpubr::annotate_figure(
@@ -206,54 +223,110 @@ ggpubr::annotate_figure(
 ```
 
 Looking at the resulting plots it can easily be seen if there is a distinctive correlation between the classification factor and the values of feature columns.
-The couple of columns that stand out the most are the `Radius`, `Perimeter`, `Area`, `Concavity` and `Concave Points` feature columns, these all seem to have a clear distinction between the diagnosis classification.  
-Another thing that should be noted is that in most of the standard error columns a lot of outliers can be seen, for now nothing will be done with these but it is a good thing to know might problems arise later on.
+The couple of columns that stand out the most are the `Radius`, `Perimeter`, `Area`, `Concavity` and `Concave Points` feature columns, these all seem to have a clear distinction between the diagnosis classification. One thing that should be noted is that in most of the standard error columns a lot of outliers can be seen, for now nothing will be done with these but it is a good thing to know might problems arise later on.
+
+Now just because it *looks* like there is a clear distinction it needs to be made sure that the difference between the class labels for the feature is actually significant. This can be tested with a 1-way ANOVA test and will be done for the radius_mean and texture_se to show the difference between significance and no significance.
+```{r}
+pval_radius_mean <- summary(aov(radius_mean ~ diagnosis, data = data))[[1]][1,5]
+pval_texture_se <-summary(aov(texture_se ~ diagnosis, data = data))[[1]][1,5]
+
+cat("P-Value of radius_mean =", pval_radius_mean,
+    "\nP-Value of texture_se  =", pval_texture_se)
+```
+An alpha of 0.05 is used for the 1-way ANOVA test and when looking at the resulting p-values it is just as expected, the mean radius is significant and the texture standard error is not. So the chance of texture_se being used in an efficient machine learning model is very slim but radius_mean being used is very likely, unless there is a heavily correlated feature column with higher information gain.
 
 \newpage
-### Bivariate analysis
-Trying to visually identify correlations between features using the above plots is not very exact, a better way is to create a correlation matrix. In the correlation matrix all the possible pairs of features have their correlation calculated.  
-The correlation matrix can then be visualized as a heatmap, where the strength of correlations is represented with colors so they can easily be visually seen.
+## Multivariate analysis
+A machine learning model should be kept as simple as possible whilst keeping the accuracy still high, this is so model does not become overfitted to the data used for training. Overfitting causes the model to be less accurate on unknown data because specific combinations of many features in the training data might not exist in the test data. So only the couple of features that correlate the highest with the classification factor are desired. But when two features correlate very highly to *each other* and if they are then both used for the model, then these features together does not improve the model any more than if only one of them was used. Because of this it is desired to identify correlations between features because one of the features from the pair should at least not be used for the model.
+
+### Heatmap of correlation matrix
+To quickly identify the correlations between all features a correlation matrix is made where all possible pairs of features have their correlation calculated. Correlations can be visualized in a heatmap, where the strength of correlations is shown with a color gradient so they can easily be visually seen.
 ```{r correlation matrix}
-# Create correlation matrix with only the numerical feature columns
-cor_matrix <- stats::cor(select(data, -diagnosis))
-cor_matrix <- tibble::as_tibble(cor_matrix)
-
-# Insert column with feature names and set it as the left most column
-column_names <- colnames(cor_matrix)
-cor_matrix <- cor_matrix %>% 
-    dplyr::mutate(col_names = all_of(column_names)) %>% 
-    dplyr::select(31, 1:30)
-
-# Show first five columns of correlation matrix
-pander::pander(head(cor_matrix[1:5], n = 5))
+# Create correlation matrix with only numerical columns and insert feature name column
+cor_mat <- tibble::as_tibble( stats::cor(select(data, -diagnosis)) ) %>% 
+  dplyr::mutate(col_names = all_of(colnames(.))) %>% 
+  dplyr::select(31, 1:30)
+# Show first four columns of correlation matrix
+pander::pander(head(cor_mat[1:5], n = 4), caption = "Head of wide correlation matrix")
 ```
 
 Before the correlation matrix can be used to create a heatmap it needs to be converted to long format, this is because of the way R and ggplot read and use data.
 ```{r long correlation matrix}
 # Convert data to long format so a heatmap can be made from it
-cor_matrix_long <- tidyr::pivot_longer(data = cor_matrix, cols = all_of(column_names), 
-                                       names_to = "variable", values_to = "cor")
+cor_mat_long <- tidyr::pivot_longer(data = cor_mat, cols = all_of(colnames(cor_mat[-1])), 
+                                    names_to = "variable", values_to = "pair_cor")
 # Show what the data looks like now
-pander::pander(head(cor_matrix_long, n = 5))
+pander::pander(head(cor_mat_long, n = 4), caption = "Head of long correlation matrix")
 ```
-In the matrix the features are not physically paired as actual instances, in the long format the features are now saved as pairs in rows with the correlation score. This way the two columns, each with a feature of a pair, can be used as the axes of the heatmap plot.
+
+In the matrix the features were not physically paired, now in the long format the feature pairs are saved as rows with their correlation score. This way the first two columns, each with the name of a feature of the pair, can be used as the axes of the heatmap plot.
 
 ```{r heatmap, fig.cap = "Heatmap visualizing pairwise correlation matrix of all feature colums"}
-ggplot(data = cor_matrix_long, aes(x = col_names, y = variable, fill = cor)) +
+ggplot(data = cor_matrix_long, aes(x = col_names, y = variable, fill = pair_cor)) +
   geom_tile() + labs(x = NULL, y = NULL) +
   scale_fill_gradient(high = "purple", low = "white" ) +
   theme(axis.text.x = element_text(angle = 45, hjust=1)) +
   ggtitle("Heatmap of column correlations")
 ```
-One thing that can immediately be noticed and should not be surprising is that the mean-, standard error- and worst feature columns of each nuclei boundary feature, i.e. of the radius, have a high correlation to each other.
+There are two groups of three nuclei features that highly correlate together on all three of their feature columns (mean, standard error and worst).
+The first group consists of the radius, perimeter and area nuclei features and the second group consists of the compactness, concavity and concave points features. For both groups only one of the mean, standard error and worst feature columns should be used, so for example only the area- and only the concavity feature columns.  
+Another thing that can immediately be noticed and should not be surprising is that the mean-, standard error- and worst feature columns of each nuclei boundary feature, i.e. of the area, also have a higher correlation to each other. So putting together that the area, radius and perimeter features all correlate to each other and themselves only one of the 9 feature columns will probably be used for the model, with the same being the case for the other group.  
 
-When looking at the heatmap it can be seen very clearly that multiple features are heavily correlated together. Next, it could be a good idea to create scatterplots with trend lines of these heavily correlated feature pairs.
+There are a few other feature columns that correlate highly together but since there are only 30 total the machine learning algorithms will decide the final ones to be used. So no feature columns will actually be dropped from the data right now, but to show what a correlation between features looks like, two scatterplots will be made of radius_mean plotted against perimeter_mean and fractal_dim_mean.
 
-### Data clustering
-```{r clustering}
-# Tree, Scatter plot, PCA plot
+```{r scatterplots, out.width = "85%", fig.cap = "Scatterplots with trendlines of the Mean Radius and Mean Perimeter features and the Mean Radius and Mean Fractal Dimension features. Showing the difference in data point distribution between correlated and non-correlated features."}
+createScatterPlot <- function(plot_title, feature_two) {
+  ggplot(data, aes(x = radius_mean, y = !!sym(feature_two), color = diagnosis)) +
+    labs(x = "Mean Radius", y = getColumnFullName(feature_two)) +
+    geom_jitter(width=0.2, height=0.2, alpha=0.5, shape=16, size=0.8,
+                mapping = aes(color = diagnosis)) +
+    geom_smooth(formula = y ~ x, method = "loess") + ggtitle(plot_title) +
+    scale_color_hue(direction = 1, h.start = 180)
+}
+scatter1 <- createScatterPlot("Plot of correlated features", "perimeter_mean")
+scatter2 <- createScatterPlot("Plot of non-correlated features", "fractal_dim_mean")
+my_grid <- ggpubr::ggarrange(scatter1, scatter2, common.legend = T, legend = "bottom")
+
+ggpubr::annotate_figure(my_grid,
+  top = text_grob("Scatterplots with trendlines showing the difference\nbetween correlated and non-correlated features",
+                  face = "bold", size = 14))
 ```
+As can be seen in *Figure \ref{fig:scatterplots}* , the points of Mean Radius and Mean Perimeter have a clear trend line drawn through them; when the radius increases, so does the perimeter by a certain amount. With one of them the other can be predicted, because of this they do not give a different insight or more information on how to classify an instance. In the second scatterplot of the Mean Radius and the Mean Fractal Dimension it is the opposite, there is no clear pattern showing that if the mean radius increases it is correlated to a linear increase in the mean fractal dimension. 
 
+### Principal Component Analysis
+It is helpful to see how and if the data clusters, by creating scatterplots to see the relation between the data points. This is however impossible to plot with the 30 feature columns, or rather dimensions, there are in the dataset. With only two features a two-dimensional plot could be made, but to create a 30-dimensional plot is not possible. It is possible to create lots of plots for all the feature pairs, but this is also not helpful and realistic.  
+One of the ways to be able to plot data on a 2D scale to see how the data is related is by creating a Principal Component Analysis (PCA) plot, where the dimensions are reduced by converting the correlations among all samples together into Principal Components. PCA starts by finding the best fitting line by maximizing the sum of squares from the projected points to the origin, which is called Principal Component 1 (PC1). After PC1 is found the next best fitting line that also goes through the origin but is perpendicular to PC1, this line is then subsequently called PC2. This continues until the PCs have been found for all features/dimensions, each going through the origin and being perpendicular to the previous principal components. Then, with all the PCs, the proportion of variance that each PC accounts for can be calculated.
+
+```{r variance plot, out.width = "75%", fig.cap = "Barplot showing how much variance is explained by each of the first ten principle components of the PCA"}
+# PCA of data except diagnosis column
+pca_res <- stats::prcomp(data[-1], center = TRUE, scale = TRUE)
+
+# Calculate variance explained from sdev
+pc_names <- sprintf("PC%s", seq(1:length(pca_res$sdev)))
+var_explained <- data.frame(pc = factor(pc_names, levels = pc_names), 
+                            var = pca_res$sdev^2 / sum(pca_res$sdev^2) )
+
+# Create barplot of first 10 PCs with variance converted to %
+ggplot(var_explained[1:10,], aes(x = pc, y = var, label = scales::percent(var))) + 
+  geom_bar(stat = "identity", fill = "darkturquoise") +
+  labs(x = "", y = "Variance Explained", 
+       title = "Barplot showing the variances explained by first 10 PCs") +
+  scale_y_continuous(labels = scales::percent) + geom_text(nudge_y = 0.015)
+
+# Print total percentage covered by first two and first six PCs
+cat(sprintf(" Variance explained by PC1 and PC2: %.1f%% \n", sum(var_explained$var[1:2])*100),
+    sprintf( "Variance explained by PC1 through P6: %.1f%%", sum(var_explained$var[1:6])*100))
+```
+A decent amount of variance is explained by just the first two principle components, with the first six explaining most variance. In *Figure \ref{fig:variance plot}* the variance explained by each of the first 10 PCs can be seen.
+
+```{r pca plot, out.width = "85%", fig.cap = "PCA plot of first two principle components, together accounting for 63.3 percent of variance"}
+ggbiplot::ggbiplot(pca_res, obs.scale = 1, var.scale = 1,
+                   groups = data$diagnosis, ellipse = FALSE, circle = TRUE) +
+  scale_color_discrete(name = "Diagnosis") + ggtitle("Principal Component Analysis Plot")
+```
+In the PCA plot of *Figure \ref{fig:pca plot}* the first two PCs can be seen and good clustering of the data on the PC1 axis. It can also be seen that there are multiple features that have their directions overlapping, this is because of what already has been discussed, namely that there is a high correlation between those features. 
+
+\newpage
 ## Creating a clean dataset for machine learning experiments
 ??
 
