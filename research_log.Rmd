@@ -101,7 +101,7 @@ Because the dataset itself does not come with an annotated header with column na
 
 Below is an overview of the columns in the dataset, shown using the contents of the codebook after it has been loaded in:
 ```{r import codebook}
-codebook <- readr::read_delim("data/codebook.txt", delim = "|", show_col_types = FALSE)
+codebook <- readr::read_delim("data/raw/codebook.txt", delim = "|", show_col_types = FALSE)
 
 # Pretty print the codebook (without descriptions) using pander
 pander::pander(codebook[, 1:3], style = "rmarkdown", 
@@ -115,7 +115,7 @@ As can be seen, all the features are of the type double except the main diagnosi
 The data will be loaded in with the `read_csv` function from the `readr` package, this function returns the data as a tibble data frame.
 This function allows a vector with column names to be given with an argument, the names from the column `Column Name` of the codebook will be used.
 ```{r load data from file}
-data <- readr::read_csv("data/wdbc.data", col_names = codebook[[1]], show_col_types = FALSE)
+data <- readr::read_csv("data/raw/wdbc.data", col_names = codebook[[1]], show_col_types = FALSE)
 
 # Print the amount of samples and columns
 cat("Amount of samples:", dim(data)[1], "\tColumns in dataframe:", dim(data)[2], "\n")
