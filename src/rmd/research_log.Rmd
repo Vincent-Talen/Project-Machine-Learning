@@ -53,6 +53,7 @@ knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(cache = TRUE)
 knitr::opts_chunk$set(warning = FALSE)
 knitr::opts_chunk$set(fig.align = "center")
+knitr::opts_chunk$set(fig.path = here::here("src/rmd/research_log_figures/"))
 knitr::opts_chunk$set(cache.path = here::here("src/rmd/research_log_cache/"))
 
 # Set directory of this Rmd file to project directory
