@@ -55,7 +55,8 @@ A few other options/settings are configured and used scripts also loaded.
 
 ```{r preparing r environment, message = FALSE}
 # Load required packages from vector using invisible and lapply
-packages <- c("tidyverse", "pander", "ggplot2", "data.table", "ggpubr", "ggbiplot")
+packages <- c("tidyverse", "pander", "data.table", "RWeka",
+              "ggplot2", "ggpubr", "ggbiplot")
 invisible(lapply(packages, library, character.only = TRUE))
 remove(packages) # Drop variable since it will not be used again
 
@@ -91,7 +92,7 @@ The ten features that are extracted for each cell nucleus are the following:
  9. Symmetry (difference in length of perpendicular lines to the longest chord through the center, in both directions)
 10. Fractal dimension (approximated using Mandelbrot's "coastline approximation" - 1)
 
-For each feature and for every image, three final values were computed and saved to the dataset, namely the mean, standard error and the extreme (largest) value.
+For every image, three final values were computed for each feature and saved to the dataset, namely the mean, standard error and the extreme (largest) value.
 
 
 ### Data structure and codebook
@@ -327,8 +328,12 @@ ggbiplot::ggbiplot(pca_res, obs.scale = 1, var.scale = 1,
 In the PCA plot of *Figure \ref{fig:pca plot}* the first two PCs can be seen and good clustering of the data on the PC1 axis. It can also be seen that there are multiple features that have their directions overlapping, this is because of what already has been discussed, namely that there is a high correlation between those features. 
 
 \newpage
-## Creating a clean dataset for machine learning experiments
-??
+## Creating .arff data file for Weka for machine learning experiments
+The dataset does not need to be cleaned any further, there are no missing values and the id column has already been removed. There are a few clusters of columns but to manually decide which should be dropped and which used is not the best way. Since there are only 30 features they will all be passed to the machine learning algorithms and there the best features will be selected.  
+```{r saving data to arff file}
+RWeka::write.arff(data, file = "data/processed/data.arff")
+```
+
 
 <!-- (References) -->
 \newpage

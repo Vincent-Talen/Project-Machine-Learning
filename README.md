@@ -26,10 +26,13 @@ Project-Machine-Learning-Part1_Analysis
 ├── LICENSE
 ├── README.md
 ├── data
-│   ├── algorithms_performance.csv
-│   ├── codebook.txt
-│   ├── wdbc.data
-│   └── wdbc.names
+│   ├── raw
+│   │   ├── codebook.txt
+│   │   ├── wdbc.data
+│   │   └── wdbc.names
+│   └── processed
+│       ├── algorithms_performance.csv
+│       └── data.arff
 └── src
     ├── scripts
     │   └── split_violin_plot.R
@@ -49,8 +52,8 @@ This research log has all the steps taken from the entire process, from the init
 To properly report on all findings this report has been written, it gets into all the results and discusses any complications encountered or what could be improved when reproducing this project. A project proposal is also included for a possible project for the minor Application Design from the Bioinformatics Bachelor at the Hanze.
 
 ### / data
-The publicly available data set was downloaded and placed in the data directory for easy access, these are the `wdbc.data` and `wdbc.names` files. Because the data file does not have a header line, a codebook was created to use in tandem with the data, enabling to easily set column names, graph titles or axis labels.  
-The `algorithms_performance.csv` contains the performance data, such as speed, accuracy and the confusion matrix, of all tested and tried out algorithms.
+The publicly available data set was downloaded and placed in the `raw` data subdirectory for easy access, these are the `wdbc.data` and `wdbc.names` files. Because the data file does not have a header line, a codebook was created to use in tandem with the data, enabling to easily set column names, graph titles or axis labels.  
+In the `preprocessed` subdirectory is the data that is generated during this project. `data.arff` is the dataset to be used for the machine learning algorithms and  `algorithms_performance.csv` contains the performance data, such as speed, accuracy and the confusion matrix, of all the tested and tried out algorithms.
 
 ### / src
 The `src` directory houses the `scripts` and `report_subfiles` sub-directories where files are placed so the repository is uncluttered.
