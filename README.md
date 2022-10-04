@@ -19,9 +19,7 @@ The full data set consists of 569 cases and was used to train an algorithm that 
 ### Project Tree
 ```bash
 Project-Machine-Learning-Part1_Analysis
-├── research_log.Rmd
 ├── research_log.pdf
-├── report.Rmd
 ├── report.pdf
 ├── LICENSE
 ├── README.md
@@ -34,6 +32,9 @@ Project-Machine-Learning-Part1_Analysis
 │       ├── algorithms_performance.csv
 │       └── data.arff
 └── src
+    ├── rmd
+    │   ├── research_log.Rmd
+    │   └── report.Rmd
     ├── scripts
     │   └── split_violin_plot.R
     └── report_subfiles
