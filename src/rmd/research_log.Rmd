@@ -333,14 +333,51 @@ ggbiplot::ggbiplot(pca_res, obs.scale = 1, var.scale = 1,
                    groups = data$diagnosis, ellipse = FALSE, circle = TRUE) +
   scale_color_discrete(name = "Diagnosis") + ggtitle("Principal Component Analysis Plot")
 ```
-In the PCA plot of *Figure \ref{fig:pca plot}* the first two PCs can be seen and good clustering of the data on the PC1 axis. It can also be seen that there are multiple features that have their directions overlapping, this is because of what already has been discussed, namely that there is a high correlation between those features. 
+In the PCA plot of *Figure \ref{fig:pca plot}* the first two PCs can be seen and show a good clustering by diagnosis of the data on the PC1 axis. It can also be seen that there are multiple features that have their directions overlapping, this is because of what already has been discussed, namely that there is a high correlation between those features. 
 
 \newpage
-## Creating .arff data file for Weka for machine learning experiments
+## Creating .arff data file for machine learning experiments in Weka
 The dataset does not need to be cleaned any further, there are no missing values and the id column has already been removed. There are a few clusters of columns but to manually decide which should be dropped and which used is not the best way. Since there are only 30 features they will all be passed to the machine learning algorithms and there the best features will be selected.  
 ```{r saving data to arff file}
 RWeka::write.arff(data, file = "data/processed/data.arff")
 ```
+
+<!-- (Machine Learning) -->
+# Machine Learning with Weka
+Now it is known what the data is like it is time to use machine learning algorithms to create a model that classifies instances as benign or malignant. This will all be done in the application [Weka](https://waikato.github.io/weka-site/index.html), which houses a multitude of machine learning algorithms with a plethora of built-in tools for standard machine learning tasks.
+
+<!-- (Relavant quality metrics) -->
+## Relavant quality metrics
+The default quality metric to measure performance of an algorithm with is the accuracy, but accuracy is not always the most important or relevant for each project's usecase. The accuracy could be less important than the speed of the model in which the classification is made. Or the data might not already be collected in some cases, then batch processing is not possible and stream processing should be used, where the data is continuously collected and processed fast, piece by piece, and is typically meant for when data is needed immediately.
+
+<!-- (Testing algorithm performance) -->
+## Testing different machine learning algorithms' performance
+Check best algorithms to create model and for each algorithm record the confusion matrix, other relevant quality metrics chosen and the cost-sensitive classifier.
+All these performance statistics will be saved to a table that will be read with R.
+
+### Baseline performance; ZeroR and OneR
+These are used to set a baseline performance, to be able to benchmark and compare other algorithms.
+
+### Other algorithms
+Naïve Bayes, Simple Logistic, SVM (SMO), Nearest Neighbor (IBk), Decision Trees (J48/C4.5) and Random Forest.
+
+<!-- (Testing algorithm settings with Weka experimenter) -->
+## Testing algorithm settings with Weka experimenter
+The effect of different algorithm settings with the goal of improving algorithm performance, on at least 2 machine learning algorithms. Also investigate the effect of Attribute Selection methods.  
+Applying appropriate statistical tests (with Weka Experimenter) taking into account the quality metrics specified earlier. Investigate some Meta learners (Stacking, Bagging, Boosting).
+
+<!-- (ROC and learning curve analysis) -->
+## ROC and learning curve analysis
+### ROC curve visualization
+Visualization of one or two final algorithms with optimal settings and explaining if the result is satisfying. Takes into account the quality metrics defined previously.
+
+### Learning curve
+How much data is needed to get a reasonable performance estimate?
+
+
+<!-- (Java Wrapper) -->
+# Java Wrapper for final learned model
+Intens man.
 
 
 <!-- (References) -->
