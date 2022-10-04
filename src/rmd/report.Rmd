@@ -1,0 +1,85 @@
+---
+output:
+  pdf_document:
+    includes:
+      in_header: ../report_subfiles/import.tex
+      before_body: ../report_subfiles/before_body.tex
+
+knit: (function(inputFile, encoding) {
+  rmarkdown::render( inputFile, encoding = encoding, output_dir = here::here() )})
+
+bibliography: ../report_subfiles/references.bib
+nocite: '@*'
+---
+
+```{r setup, include=FALSE}
+# Set code cunk options
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(fig.align = "center")
+knitr::opts_chunk$set(cache.path = here::here("src/rmd/report_cache/"))
+
+# Set directory of this Rmd file to project directory
+knitr::opts_knit$set(root.dir = here::here())
+```
+
+\newpage
+<!-- (Introduction) -->
+# Introduction
+Diagnosing if breast masses/lumps are benign or malignant, and thus if they are breast cancer, was done by full biopsies, which are invasive surgical procedures. 
+So the researchers wanted a faster and less invasive way to diagnose breast cancer. A promising technique was to take fine needle aspirate fluid samples from the breast mass and then look at the cells under a microscope, the diagnosis would then be based on the characteristics and contextual features of the cells that could visually be seen. This gave mixed results because it was highly subjective and depended a lot on the skill of the physician.  
+To make this process faster, improve the correctness and objectivity of the diagnosis process, image processing and machine learning techniques were used.
+
+-----------------------
+* breast lump or mass
+* sample of fluid
+* fine needle aspirate
+* placed on a glass slide
+* stained to highlight nuclei
+* microscope creates image
+* image is loaded digitally
+* the boundaries of nuclei are curve-fitted with the program Xcyt 
+* ten features are computed
+* mean, standard error and extreme values are computed for each image
+
+## Goal
+## Research Question
+Can breast mass malignancy be assessed with >95% accuracy, using visual features of nuclei boundaries computed from fine needle aspirate images?
+
+## Theory
+??
+
+
+\newpage
+<!-- (Methods) -->
+# Methods
+https://github.com/Vincent-Talen/Project-Machine-Learning-Part1_Analysis  
+https://github.com/Vincent-Talen/Project-Machine-Learning-Part2_Java-Wrapper
+
+
+\newpage
+<!-- (Results) -->
+# Results
+## Data acquisition and preprocessing
+??
+
+## Validation and performance
+??
+
+## Research findings
+??
+
+
+\newpage
+<!-- (Discussion and Conclusion) -->
+# Discussion and Conclusion
+## Discussion
+??
+
+## General conclusion and perspective
+??
+
+
+<!-- (After-Body) -->
+```{r after body, child = 'src/report_subfiles/after_body.Rmd'}
+```

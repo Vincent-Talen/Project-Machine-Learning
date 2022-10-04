@@ -7,15 +7,10 @@ header-includes:
    - \usepackage{longtable}
    - \usepackage{hyperref}
    - \usepackage[nottoc]{tocbibind}
----
 
-```{r setup, include = FALSE}
-# Set code chunks visibility in pdf output to true
-knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_chunk$set(cache = TRUE)
-knitr::opts_chunk$set(warning = FALSE)
-knitr::opts_chunk$set(fig.align = "center")
-```
+knit: (function(inputFile, encoding) {
+  rmarkdown::render( inputFile, encoding = encoding, output_dir = here::here() ) })
+---
 
 <!-- (Front page) -->
 \vspace{350pt}
@@ -50,9 +45,22 @@ knitr::opts_chunk$set(fig.align = "center")
 
 <!-- (Setting up R) -->
 # Preparing R environment
+Set some options for the code chunks here so they don't have to be set for every chunk seperately.  
+Also set the directory this markdown file knits and runs from to the project directory.
+```{r setup}
+# Set code chunk options
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(cache = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(fig.align = "center")
+knitr::opts_chunk$set(cache.path = here::here("src/rmd/research_log_cache/"))
+
+# Set directory of this Rmd file to project directory
+knitr::opts_knit$set(root.dir = here::here())
+```
+
 For the data analysis and further processes multiple libraries are needed, they are loaded in here.
 A few other options/settings are configured and used scripts also loaded.
-
 ```{r preparing r environment, message = FALSE}
 # Load required packages from vector using invisible and lapply
 packages <- c("tidyverse", "pander", "data.table", "RWeka",
@@ -263,7 +271,7 @@ pander::pander(head(cor_mat_long, n = 4), caption = "Head of long correlation ma
 In the matrix the features were not physically paired, now in the long format the feature pairs are saved as rows with their correlation score. This way the first two columns, each with the name of a feature of the pair, can be used as the axes of the heatmap plot.
 
 ```{r heatmap, fig.cap = "Heatmap visualizing pairwise correlation matrix of all feature colums"}
-ggplot(data = cor_matrix_long, aes(x = col_names, y = variable, fill = pair_cor)) +
+ggplot(data = cor_mat_long, aes(x = col_names, y = variable, fill = pair_cor)) +
   geom_tile() + labs(x = NULL, y = NULL) +
   scale_fill_gradient(high = "purple", low = "white" ) +
   theme(axis.text.x = element_text(angle = 45, hjust=1)) +
