@@ -45,7 +45,7 @@ knit: (function(inputFile, encoding) {
 
 <!-- (Setting up R) -->
 # Preparing R environment
-Set some options for the code chunks here so they don't have to be set for every chunk seperately.  
+Set some options for the code chunks here so they don't have to be set for every chunk separately.  
 Also set the directory this markdown file knits and runs from to the project directory.
 ```{r setup}
 # Set code chunk options
@@ -62,7 +62,7 @@ knitr::opts_knit$set(root.dir = here::here())
 
 For the data analysis and further processes multiple libraries are needed, they are loaded in here.
 A few other options/settings are configured and used scripts also loaded.
-```{r preparing r environment, message = FALSE}
+```{r preparing-r-environment, message = FALSE}
 # Load required packages from vector using invisible and lapply
 packages <- c("tidyverse", "pander", "data.table", "RWeka",
               "ggplot2", "ggpubr", "ggbiplot")
@@ -109,7 +109,7 @@ The dataset has 569 instances/rows with 32 columns, an ID column, a classificati
 Because the dataset itself does not come with an annotated header with column names, a codebook has been manually made. This codebook has the abbreviated column name, the full column name, the data type and a description for each feature/column.
 
 Below is an overview of the columns in the dataset, shown using the contents of the codebook after it has been loaded in:
-```{r import codebook}
+```{r import-codebook}
 codebook <- readr::read_delim("data/raw/codebook.txt", delim = "|", show_col_types = FALSE)
 
 # Pretty print the codebook (without descriptions) using pander
@@ -123,7 +123,7 @@ As can be seen, all the features are of the type double except the main diagnosi
 ## Loading in the dataset
 The data will be loaded in with the `read_csv` function from the `readr` package, this function returns the data as a tibble data frame.
 This function allows a vector with column names to be given with an argument, the names from the column `Column Name` of the codebook will be used.
-```{r load data from file}
+```{r load-data-file}
 data <- readr::read_csv("data/raw/wdbc.data", col_names = codebook[[1]], show_col_types = FALSE)
 
 # Print the amount of samples and columns
@@ -131,15 +131,15 @@ cat("Amount of samples:", dim(data)[1], "\tColumns in dataframe:", dim(data)[2],
 ```
 The amount of samples and columns are as expected, so in this aspect the dataset has been read correctly. However, what is more important is if the values are read correctly, since the values are that what is actually going to be used.
 
-```{r remove unwanted tibble attributes, include=FALSE}
+```{r remove-tibble-attributes, include=FALSE}
 attr(data, "spec") <- NULL; attr(data, "problems") <- NULL
 ```
-```{r print data structure}
+```{r print-data-structure}
 str(data)
 ```
 Luckily it looks like the values for every column have correctly been read, but there is one thing that could still be changed; the diagnosis column. It would be more helpful if diagnosis was a factor and not just a character column.
 
-```{r data distribution, out.width = "75%", fig.cap = "Barplot showing distribution of diagnosis classification labels"}
+```{r data-distribution, out.width = "75%", fig.cap = "Barplot showing distribution of diagnosis classification labels"}
 data$diagnosis <- factor(data$diagnosis, labels = c("Benign", "Malignant"))
 
 ggplot(data, aes(x = diagnosis, fill = diagnosis)) + geom_bar() + 
@@ -150,7 +150,7 @@ ggplot(data, aes(x = diagnosis, fill = diagnosis)) + geom_bar() +
 There are more benign cases than malignant, this means the dataset is not entirely balanced and could cause bias if not handled correctly.
 
 The dataset has the `id` column, this column is not needed for the analysis that will be performed so it will therefore be dropped from the data frame. The `id` column could even cause small a hiccup when creating the machine learning model, since all the values are unique the model could use that as the only feature to predict the classification label. This would of course not work since unseen data will not have the same id's as the data used for training the machine learning algorithm.
-```{r drop id column}
+```{r drop-id-column}
 data <- dplyr::select(data, -id)
 cat( sprintf("ID column present?: %s", "id" %in% colnames(data)) )
 ```
@@ -158,13 +158,13 @@ cat( sprintf("ID column present?: %s", "id" %in% colnames(data)) )
 \newpage
 ## Data inspection
 It is important to have a good understanding of what the data is like, for example how the data is distributed and if there is data corruption. A few things that should be checked are if there are any outliers present, any data is skewed (an asymmetry in data distribution) or if there is any missing data.
-```{r check missing values}
+```{r check-missing-values}
 cat("Missing values:", any(is.na(data)))
 ```
 Luckily there are no missing values in the dataset. But now it is good to get an idea of what the values of the columns look like, what ranges do their values fall in? This can be done with the function `summary()` for all columns at the same time, it will create a basic statistics overview about the columns.
 
 ### Overall data summary
-```{r show summery of data}
+```{r show-data-summary}
 pander::pander(summary(data), caption = "Summary with basic statistics about the data colums")
 ```
 By glancing over the summary created above a few things can be noticed and questions can arise, for example the `area_mean`, `concave_pts_mean`, `radius_se`, `perimeter_se` and `area_worst` columns. These, among other columns, have a wide range of values with their minimum or maximum values far from the quantiles or median.  
@@ -176,7 +176,7 @@ Creating them separately for all 30 feature columns would result in 60 plots, wh
 
 There is not a function in `ggplot` to create these split violin plots, the source code file `src/scripts/split_violin_plot.R` contains a function that uses ggplot as a basis to create split violin plots. Then, using this function from the source file, another function is created that assembles the full plot including the box plot, plot title and themes. After this a list of column names can be given and a plot will be generated for each of them and they will the be arranged with a common legend to the output file. So there is a clearer overview where the data can be compared the plots for the feature columns will be split on their specification, resulting in three arranged layouts with the mean-, standard error- and worst plots.
 
-```{r create plot functions}
+```{r create-plot-functions}
 getColumnFullName <- function(col_name) {
   return(dplyr::filter(codebook, `Column Name` == col_name)$`Full Name`)
 }
@@ -208,7 +208,7 @@ createPlotGrid <- function(extension) {
 With these functions the spits violin plots can easily be made as three plot grids with the `createPlotGrid()` function, split by the three nuclei features. Then the grids will be annotated with a plot title and then they are done.
 
 \newpage
-```{r _mean plots, fig.width = 7.5, fig.height = 9.5, fig.cap = "Split violin plots showing density joined with box plots showing quartiles and outliers, for all 'mean' feature columns"}
+```{r violin-plots-mean, fig.width = 7.5, fig.height = 9.5, fig.cap = "Split violin plots showing density joined with box plots showing quartiles and outliers, for all 'mean' feature columns"}
 # Create split violin plots for all mean feature columns
 ggpubr::annotate_figure(
   createPlotGrid("_mean"), 
@@ -216,7 +216,7 @@ ggpubr::annotate_figure(
                   face = "bold", size = 14))
 ```
 
-```{r _se plots, fig.width = 7.5, fig.height = 9.5, fig.cap = "Split violin plots showing density joined with box plots showing quartiles and outliers, for all 'standard error' feature columns"}
+```{r violin-plots-se, fig.width = 7.5, fig.height = 9.5, fig.cap = "Split violin plots showing density joined with box plots showing quartiles and outliers, for all 'standard error' feature columns"}
 # Create split violin plots for all standard error feature columns
 ggpubr::annotate_figure(
   createPlotGrid("_se"), 
@@ -224,7 +224,7 @@ ggpubr::annotate_figure(
                   face = "bold", size = 14))
 ```
 
-```{r _worst plots, fig.width = 7.5, fig.height = 9.5, fig.cap = "Split violin plots showing density joined with box plots showing quartiles and outliers, for all 'worst/extreme' feature columns"}
+```{r violin-plots-worst, fig.width = 7.5, fig.height = 9.5, fig.cap = "Split violin plots showing density joined with box plots showing quartiles and outliers, for all 'worst/extreme' feature columns"}
 # Create split violin plots for all worst/extreme feature columns
 ggpubr::annotate_figure(
   createPlotGrid("_worst"), 
@@ -236,7 +236,7 @@ Looking at the resulting plots it can easily be seen if there is a distinctive c
 The couple of columns that stand out the most are the `Radius`, `Perimeter`, `Area`, `Concavity` and `Concave Points` feature columns, these all seem to have a clear distinction between the diagnosis classification. One thing that should be noted is that in most of the standard error columns a lot of outliers can be seen, for now nothing will be done with these but it is a good thing to know might problems arise later on.
 
 Now just because it *looks* like there is a clear distinction it needs to be made sure that the difference between the class labels for the feature is actually significant. This can be tested with a 1-way ANOVA test and will be done for the radius_mean and texture_se to show the difference between significance and no significance.
-```{r}
+```{r p-value-test}
 pval_radius_mean <- summary(aov(radius_mean ~ diagnosis, data = data))[[1]][1,5]
 pval_texture_se <-summary(aov(texture_se ~ diagnosis, data = data))[[1]][1,5]
 
@@ -251,7 +251,7 @@ A machine learning model should be kept as simple as possible whilst keeping the
 
 ### Heatmap of correlation matrix
 To quickly identify the correlations between all features a correlation matrix is made where all possible pairs of features have their correlation calculated. Correlations can be visualized in a heatmap, where the strength of correlations is shown with a color gradient so they can easily be visually seen.
-```{r correlation matrix}
+```{r correlation-matrix}
 # Create correlation matrix with only numerical columns and insert feature name column
 cor_mat <- tibble::as_tibble( stats::cor(select(data, -diagnosis)) ) %>% 
   dplyr::mutate(col_names = all_of(colnames(.))) %>% 
@@ -261,7 +261,7 @@ pander::pander(head(cor_mat[1:5], n = 4), caption = "Head of wide correlation ma
 ```
 
 Before the correlation matrix can be used to create a heatmap it needs to be converted to long format, this is because of the way R and ggplot read and use data.
-```{r long correlation matrix}
+```{r long-correlation-matrix}
 # Convert data to long format so a heatmap can be made from it
 cor_mat_long <- tidyr::pivot_longer(data = cor_mat, cols = all_of(colnames(cor_mat[-1])), 
                                     names_to = "variable", values_to = "pair_cor")
@@ -307,7 +307,7 @@ As can be seen in *Figure \ref{fig:scatterplots}* , the points of Mean Radius an
 It is helpful to see how and if the data clusters, by creating scatterplots to see the relation between the data points. This is however impossible to plot with the 30 feature columns, or rather dimensions, there are in the dataset. With only two features a two-dimensional plot could be made, but to create a 30-dimensional plot is not possible. It is possible to create lots of plots for all the feature pairs, but this is also not helpful and realistic.  
 One of the ways to be able to plot data on a 2D scale to see how the data is related is by creating a Principal Component Analysis (PCA) plot, where the dimensions are reduced by converting the correlations among all samples together into Principal Components. PCA starts by finding the best fitting line by maximizing the sum of squares from the projected points to the origin, which is called Principal Component 1 (PC1). After PC1 is found the next best fitting line that also goes through the origin but is perpendicular to PC1, this line is then subsequently called PC2. This continues until the PCs have been found for all features/dimensions, each going through the origin and being perpendicular to the previous principal components. Then, with all the PCs, the proportion of variance that each PC accounts for can be calculated.
 
-```{r variance plot, out.width = "75%", fig.cap = "Barplot showing how much variance is explained by each of the first ten principle components of the PCA"}
+```{r variance-plot, out.width = "75%", fig.cap = "Barplot showing how much variance is explained by each of the first ten principle components of the PCA"}
 # PCA of data except diagnosis column
 pca_res <- stats::prcomp(data[-1], center = TRUE, scale = TRUE)
 
@@ -327,19 +327,19 @@ ggplot(var_explained[1:10,], aes(x = pc, y = var, label = scales::percent(var)))
 cat(sprintf(" Variance explained by PC1 and PC2: %.1f%% \n", sum(var_explained$var[1:2])*100),
     sprintf( "Variance explained by PC1 through P6: %.1f%%", sum(var_explained$var[1:6])*100))
 ```
-A decent amount of variance is explained by just the first two principle components, with the first six explaining most variance. In *Figure \ref{fig:variance plot}* the variance explained by each of the first 10 PCs can be seen.
+A decent amount of variance is explained by just the first two principle components, with the first six explaining most variance. In *Figure \ref{fig:variance-plot}* the variance explained by each of the first 10 PCs can be seen.
 
-```{r pca plot, out.width = "85%", fig.cap = "PCA plot of first two principle components, together accounting for 63.3 percent of variance"}
+```{r pca-plot, out.width = "85%", fig.cap = "PCA plot of first two principle components, together accounting for 63.3 percent of variance"}
 ggbiplot::ggbiplot(pca_res, obs.scale = 1, var.scale = 1,
                    groups = data$diagnosis, ellipse = FALSE, circle = TRUE) +
   scale_color_discrete(name = "Diagnosis") + ggtitle("Principal Component Analysis Plot")
 ```
-In the PCA plot of *Figure \ref{fig:pca plot}* the first two PCs can be seen and show a good clustering by diagnosis of the data on the PC1 axis. It can also be seen that there are multiple features that have their directions overlapping, this is because of what already has been discussed, namely that there is a high correlation between those features. 
+In the PCA plot of *Figure \ref{fig:pca-plot}* the first two PCs can be seen and show a good clustering by diagnosis of the data on the PC1 axis. It can also be seen that there are multiple features that have their directions overlapping, this is because of what already has been discussed, namely that there is a high correlation between those features. 
 
 \newpage
 ## Creating .arff data file for machine learning experiments in Weka
 The dataset does not need to be cleaned any further, there are no missing values and the id column has already been removed. There are a few clusters of columns but to manually decide which should be dropped and which used is not the best way. Since there are only 30 features they will all be passed to the machine learning algorithms and there the best features will be selected.  
-```{r saving data to arff file}
+```{r saving-data-to-arff-file}
 RWeka::write.arff(data, file = "data/processed/data.arff")
 ```
 

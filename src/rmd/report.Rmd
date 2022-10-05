@@ -10,26 +10,26 @@ knit: (function(inputFile, encoding) {
 
 bibliography: ../report_subfiles/references.bib
 nocite: '@*'
+urlcolor: blue
 ---
 
 ```{r setup, include=FALSE}
 # Set code cunk options
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 knitr::opts_chunk$set(warning = FALSE)
 knitr::opts_chunk$set(fig.align = "center")
 
 # Set directory of this Rmd file to project directory
 knitr::opts_knit$set(root.dir = here::here())
+options("knitr.graphics.rel_path" = FALSE)
 ```
 
 \newpage
 <!-- (Introduction) -->
 # Introduction
-Diagnosing if breast masses/lumps are benign or malignant, and thus if they are breast cancer, was done by full biopsies, which are invasive surgical procedures. 
-An alternative method is to take fine needle aspirate (FNA) fluid samples and then have the acting physician try to determine the diagnosis by looking with a microscope at the cell nuclei. The problem with this, and why they thus mainly performed full biopsies, was that this gave mixed results because it was highly subjective and depended a lot on the skill of the physician. But because diagnosing the breast masses by taking FNAs and examining them is much less invasive than the full biopsies it was desired to make this process faster and improve the correctness and objectivity of the diagnosis process. To achieve this goal microscopic images were digitized of the FNA samples and processed into features, machine learning techniques were then used to create a diagnostic model.
+Diagnosing if breast masses/lumps are benign or malignant, and thus if they are breast cancer, was done by performing full biopsies, which are invasive surgical procedures. An alternative method is to take fine needle aspirate (FNA) fluid samples and then have the acting physician try to determine the diagnosis by looking with a microscope at the cell nuclei. The problem with this, and why they thus mainly performed full biopsies, was that this gave mixed results because it was highly subjective and depended a lot on the skill of the physician. But because diagnosing the breast masses by taking FNAs and examining them is much less invasive than the full biopsies it was desired to make this process faster and improve the correctness and objectivity of the diagnosis process. To achieve this goal microscopic images were digitized of the FNA samples and processed into features, machine learning techniques were then used to create a diagnostic model.
 
-## Goal
-## Research Question
+## Objective
 Can breast mass malignancy be assessed with >95% accuracy, using visual features of nuclei boundaries computed from fine needle aspirate images?
 
 ## Theory
@@ -37,10 +37,13 @@ Can breast mass malignancy be assessed with >95% accuracy, using visual features
 
 
 \newpage
-<!-- (Methods) -->
+<!-- (Materials and Methods) -->
 # Materials and Methods
-Link: [GitHub Repository of Part 1: Analysis](https://github.com/Vincent-Talen/Project-Machine-Learning-Part1_Analysis)  
-Link: [GitHub Repository of Part 2: Java Wrapper](https://github.com/Vincent-Talen/Project-Machine-Learning-Part2_Java-Wrapper)
+Link to GitHub Repository of Part 1: Analysis:  
+[https://github.com/Vincent-Talen/Project-Machine-Learning-Part1_Analysis](https://github.com/Vincent-Talen/Project-Machine-Learning-Part1_Analysis)  
+
+Link to GitHub Repository of Part 2: Java Wrapper:  
+[https://github.com/Vincent-Talen/Project-Machine-Learning-Part2_Java-Wrapper](https://github.com/Vincent-Talen/Project-Machine-Learning-Part2_Java-Wrapper)  
 
 ## Materials
 ??
@@ -55,14 +58,10 @@ Link: [GitHub Repository of Part 2: Java Wrapper](https://github.com/Vincent-Tal
 \newpage
 <!-- (Results) -->
 # Results
-## Data acquisition and preprocessing
-??
-
-## Validation and performance
-??
-
-## Research findings
-??
+## Data
+```{r data_distribution, out.width = "75%", fig.cap = "Barplot showing distribution of diagnosis classification labels"}
+knitr::include_graphics(here::here("src/rmd/research_log_figures/data-distribution-1.pdf"))
+```
 
 
 \newpage
