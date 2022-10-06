@@ -10,7 +10,6 @@ knit: (function(inputFile, encoding) {
 
 bibliography: ../report_subfiles/references.bib
 nocite: '@*'
-urlcolor: blue
 ---
 
 ```{r setup, include=FALSE}
@@ -60,7 +59,7 @@ Link to GitHub Repository of Part 2: Java Wrapper:
 # Results
 ## Data
 ```{r data_distribution, out.width = "75%", fig.cap = "Barplot showing distribution of diagnosis classification labels"}
-knitr::include_graphics(here::here("src/rmd/research_log_figures/data-distribution-1.pdf"))
+knitr::include_graphics(here::here("output/figures/data-distribution-1.pdf"))
 ```
 
 
@@ -71,6 +70,12 @@ knitr::include_graphics(here::here("src/rmd/research_log_figures/data-distributi
 ??
 
 ## General conclusion and perspective
+??
+
+
+\newpage
+<!-- (Project proposal for Minor ) -->
+# Project proposal for Minor 
 ??
 
 

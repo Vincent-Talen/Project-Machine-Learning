@@ -53,7 +53,7 @@ knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(cache = TRUE)
 knitr::opts_chunk$set(warning = FALSE)
 knitr::opts_chunk$set(fig.align = "center")
-knitr::opts_chunk$set(fig.path = here::here("src/rmd/research_log_figures/"))
+knitr::opts_chunk$set(fig.path = here::here("output/figures/"))
 knitr::opts_chunk$set(cache.path = here::here("src/rmd/research_log_cache/"))
 
 # Set directory of this Rmd file to project directory
@@ -376,6 +376,7 @@ Visualization of one or two final algorithms with optimal settings and explainin
 How much data is needed to get a reasonable performance estimate?
 
 
+\newpage
 <!-- (Java Wrapper) -->
 # Java Wrapper for final learned model
 Intens man.

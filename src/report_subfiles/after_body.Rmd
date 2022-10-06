@@ -1,12 +1,12 @@
 \newpage
 <!-- (References) -->
-# References
+# References {-}
 <div id="refs"></div>
 
 
 \newpage
 <!-- (Appendices) -->
-# Appendices
+# Appendices {-}
 ```{r appendix setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(eval = FALSE)
