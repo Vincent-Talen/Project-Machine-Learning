@@ -31,6 +31,8 @@ Project-Machine-Learning-Part1_Analysis
 │   └── processed
 │       ├── algorithms_performance.csv
 │       └── data.arff
+├── output
+│   └── figures
 └── src
     ├── rmd
     │   ├── research_log.Rmd

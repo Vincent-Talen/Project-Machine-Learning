@@ -7,6 +7,7 @@ header-includes:
    - \usepackage{longtable}
    - \usepackage{hyperref}
    - \usepackage[nottoc]{tocbibind}
+   - \usepackage[justification=centering]{caption}
 
 knit: (function(inputFile, encoding) {
   rmarkdown::render( inputFile, encoding = encoding, output_dir = here::here() ) })
@@ -174,7 +175,7 @@ This could mean that there are outliers in the data, the questions that arise be
 To check if points are outliers the data needs to be visualized, this can be done by creating a box plot and/or density plot for each of the columns.
 Creating them separately for all 30 feature columns would result in 60 plots, which is a lot and perhaps too many. To reduce the amount of total plots, the density plots will instead be visualized using violin plots with the box plots inside of them. Because printing all the data of a feature column in a single box or violin does not show what is desired, the plots will be split on the diagnosis classification factor.
 
-There is not a function in `ggplot` to create these split violin plots, the source code file `src/scripts/split_violin_plot.R` contains a function that uses ggplot as a basis to create split violin plots. Then, using this function from the source file, another function is created that assembles the full plot including the box plot, plot title and themes. After this a list of column names can be given and a plot will be generated for each of them and they will the be arranged with a common legend to the output file. So there is a clearer overview where the data can be compared the plots for the feature columns will be split on their specification, resulting in three arranged layouts with the mean-, standard error- and worst plots.
+There is not a function in `ggplot` to create these split violin plots, the source code file `src/scripts/split_violin_plot.R` contains a function that uses ggplot as a basis to create split violin plots. Then, using this function from the source file, another function is created that assembles the full plot including the box plot, plot title and themes. After this a list of column names can be given of which a plot will be generated for each and then the plots will be arranged with a common legend to the output file. So there is a clearer overview where the data can be compared the plots for the feature columns will be split on their specification, resulting in three arranged layouts with the mean-, standard error- and worst plots.
 
 ```{r create-plot-functions}
 getColumnFullName <- function(col_name) {
@@ -190,7 +191,7 @@ createFeaturePlot <- function(col_name, figure_tab) {
     scale_fill_brewer(palette = "Dark2", name = "Diagnosis:") +
     ggtitle( getColumnFullName(col_name) ) +
     theme_minimal() + labs(y = NULL, x = NULL, tag = figure_tab) + 
-    theme(plot.title = element_text(size = 9, face = "bold"))#, hjust = 0.5))
+    theme(plot.title = element_text(size = 9, face = "bold"))
   return(list(plot))
 }
 
@@ -325,7 +326,7 @@ ggplot(var_explained[1:10,], aes(x = pc, y = var, label = scales::percent(var)))
 
 # Print total percentage covered by first two and first six PCs
 cat(sprintf(" Variance explained by PC1 and PC2: %.1f%% \n", sum(var_explained$var[1:2])*100),
-    sprintf( "Variance explained by PC1 through P6: %.1f%%", sum(var_explained$var[1:6])*100))
+    sprintf( "Variance explained by PC1 through PC6: %.1f%%", sum(var_explained$var[1:6])*100))
 ```
 A decent amount of variance is explained by just the first two principle components, with the first six explaining most variance. In *Figure \ref{fig:variance-plot}* the variance explained by each of the first 10 PCs can be seen.
 
@@ -338,21 +339,62 @@ In the PCA plot of *Figure \ref{fig:pca-plot}* the first two PCs can be seen and
 
 \newpage
 ## Creating .arff data file for machine learning experiments in Weka
-The dataset does not need to be cleaned any further, there are no missing values and the id column has already been removed. There are a few clusters of columns but to manually decide which should be dropped and which used is not the best way. Since there are only 30 features they will all be passed to the machine learning algorithms and there the best features will be selected.  
+The dataset does not need to be cleaned any further, there are no missing values and the id column has already been removed. There are a few clusters of columns but to manually decide which should be dropped and which used is not the best way. Since there are only 30 features they will all be passed to the machine learning algorithms and there the best features will be selected. The classification factor level order will be changed so confusion matrices (explained later) are more logical, the column will also be set as the last column, since the last column is the one Weka expects to be the classification column.
 ```{r saving-data-to-arff-file}
-RWeka::write.arff(data, file = "data/processed/data.arff")
+data$diagnosis <- factor(data$diagnosis, levels = c("Malignant", "Benign"))
+RWeka::write.arff(select(data, 2:31, 1), file = "data/processed/data.arff")
+```
+
+```{r, include = FALSE}
+pvalues <- lapply(data[-1], function(x) t.test(x ~ diagnosis, data = data)$p.value) %>%
+  unlist() %>% tibble::enframe() %>% dplyr::arrange(-value) %>% 
+  "$<-"(name, factor(.$name, levels = .$name)) #%>%
+  #"colnames<-"(c("Column Name", "p-value"))
+
+pander::pander(pvalues, caption = "p-values for feature column's t-test between the diagnosis classifications")
+
+ggplot(pvalues, aes(x = -log(value, 2), y = name)) +
+  geom_col() +
+  labs(x = "-log(2) of significance (higher is more significant)", y = "") +
+  ggtitle("Significance of correlation between features and classification class")
 ```
 
 <!-- (Machine Learning) -->
 # Machine Learning with Weka
 Now it is known what the data is like it is time to use machine learning algorithms to create a model that classifies instances as benign or malignant. This will all be done in the application [Weka](https://waikato.github.io/weka-site/index.html), which houses a multitude of machine learning algorithms with a plethora of built-in tools for standard machine learning tasks.
 
-<!-- (Relavant quality metrics) -->
-## Relavant quality metrics
-The default quality metric to measure performance of an algorithm with is the accuracy, but accuracy is not always the most important or relevant for each project's usecase. The accuracy could be less important than the speed of the model in which the classification is made. Or the data might not already be collected in some cases, then batch processing is not possible and stream processing should be used, where the data is continuously collected and processed fast, piece by piece, and is typically meant for when data is needed immediately.
+<!-- (Relevant quality metrics) -->
+## Relevant quality metrics
+The default quality metric to measure the performance of an algorithm with is the accuracy, but accuracy is not always the most important or relevant for each project's use case. The accuracy could be less important than the speed of the model in which the classification is made. Or in some cases the data might not already be completely collected, then batch processing is not possible and stream processing should be used. With stream processing the data is continuously collected and processed fast, piece by piece, and is typically meant for when data is needed immediately.
+
+In this case the data is already fully collected and new samples are processed manually by the acting physician, thus the model does not need to look at aspects like speed. Naturally the accuracy of resulting models is important, but it is actually more important for which classifier the model is accurate. It is preferable to classify an instance as malignant over benign, because if a malignant breast mass gets classified as benign the patient might then make the decision to not get treatment even if they actually do need it. Almost all metrics that an algorithm can be scored by stem from the values in a confusion matrix.
+
+### Confusion Matrix
+A standard overview that is created and shown for every model is a confusion matrix, in the confusion matrix it can be seen how many- and as what instances are classified by the model. For this dataset correctly classified malignant instances are true positive (TP), benign instances classified as malignant are false positive (FP), correctly classified benign instances are true negative (TN) and malignant instances classified as benign are false negative (FN). *Table \ref{tab:confusion-matrix-example}* is an example of a confusion matrix returned by Weka.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ r r|l } 
+  a & b & <- classified as \\
+  \hline
+  TP & FP & a = Malignant \\
+  FN & TN & b = Benign \\
+\end{tabular}
+\caption{\label{tab:confusion-matrix-example}Example of a confusion matrix. The columns are what the instances are classified as by the model and the rows show what their classification actually is.}
+\end{table}
+
+### Sensitivity and Specificity
+Two important metrics for this project, and for machine learning algorithms in general, are sensitivity and specificity. These describe the probability of an instance being correctly classified as their actual classification, calculated using the values from the confusion matrix. The sensitivity is also known as the true positive rate (TPR) and is calculated as $\mathrm{TPR} = \frac{\mathrm{TP}}{ \mathrm{TP} + \mathrm{FN} }$, describing the ability of the model to correctly predict positive instances as positive. Whereas the specificity is known as the true negative rate (TNR) which describes the ability of the model to correctly predict negative instances as negative and is calculated as $\mathrm{TNR} = \frac{\mathrm{TN}}{ \mathrm{TN} + \mathrm{FP} }$.
+
+### Precision
+Because it is preferred for a model to get as few malignant instances classified as benign, meaning that there will be more false positive instances. Precision, or also known as the positive predictive values (PPV) metric, describes the ratio of correctly classified positive instances to the total amount of instances that were classified as positive. Since it is desired for there to be more false positives than false negatives this is not a main metric the algorithms will be scored by but it is still very relevant. Precision is calculated as $\mathrm{PPV} = \frac{ \mathrm{TP} }{ \mathrm{TP} + \mathrm{FP} }$.
+
+### ROC and Area under Curve
+Text
+
 
 <!-- (Testing algorithm performance) -->
-## Testing different machine learning algorithms' performance
+## Testing different machine learning algorithms' default performance
 Check best algorithms to create model and for each algorithm record the confusion matrix, other relevant quality metrics chosen and the cost-sensitive classifier.
 All these performance statistics will be saved to a table that will be read with R.
 
@@ -363,7 +405,7 @@ These are used to set a baseline performance, to be able to benchmark and compar
 Naïve Bayes, Simple Logistic, SVM (SMO), Nearest Neighbor (IBk), Decision Trees (J48/C4.5) and Random Forest.
 
 <!-- (Testing algorithm settings with Weka experimenter) -->
-## Testing algorithm settings with Weka experimenter
+## Testing algorithm performances using different settings with Weka experimenter
 The effect of different algorithm settings with the goal of improving algorithm performance, on at least 2 machine learning algorithms. Also investigate the effect of Attribute Selection methods.  
 Applying appropriate statistical tests (with Weka Experimenter) taking into account the quality metrics specified earlier. Investigate some Meta learners (Stacking, Bagging, Boosting).
 
