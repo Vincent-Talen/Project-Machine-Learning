@@ -63,7 +63,7 @@ knitr::opts_knit$set(root.dir = here::here())
 
 For the data analysis and further processes multiple libraries are needed, they are loaded in here.
 A few other options/settings are configured and used scripts also loaded.
-```{r preparing-r-environment, message = FALSE}
+```{r preparing-r-environment, message = FALSE, cache = FALSE}
 # Load required packages from vector using invisible and lapply
 packages <- c("tidyverse", "pander", "data.table", "RWeka",
               "ggplot2", "ggpubr", "ggbiplot")
@@ -72,6 +72,7 @@ remove(packages) # Drop variable since it will not be used again
 
 # Source functions
 source("src/scripts/split_violin_plot.R")
+source("src/scripts/weka_analyser_custom.R")
 
 # Disable printing 'table continues' lines between split sections
 pander::panderOptions("table.continues", "")
@@ -398,11 +399,32 @@ Text
 Check best algorithms to create model and for each algorithm record the confusion matrix, other relevant quality metrics chosen and the cost-sensitive classifier.
 All these performance statistics will be saved to a table that will be read with R.
 
-### Baseline performance; ZeroR and OneR
-These are used to set a baseline performance, to be able to benchmark and compare other algorithms.
+### Baseline performance
+ZeroR and OneR are used to set a sort of baseline performance, these can be used to benchmark and compare other algorithms to.
 
 ### Other algorithms
 Naïve Bayes, Simple Logistic, SVM (SMO), Nearest Neighbor (IBk), Decision Trees (J48/C4.5) and Random Forest.
+```{r default_settings, cache = FALSE, results = 'asis'}
+# Load performance data from file
+file_path <- "output/algorithm_performances/default.arff"
+performance_data <- loadPerformanceData(file_path)
+
+# Desired comparison fields/metrics
+comparison_fields <- c("Percent_correct", "True_positive_rate", "True_negative_rate", 
+                       "IR_precision", "Area_under_ROC")
+
+# Create table
+comparison_dt <- createTableWithSignificances(performance_df = performance_data,
+                                              comparison_fields = comparison_fields)
+
+# Pretty print with nicer column names
+metric_names <- c("Accuracy", "Sensitivity", "Specificity", "Precision", "Area under ROC")
+caption <- "Default performances of standard machine learning algorithms compared to ZeroR"
+printNiceLatexTable(comparison_dt, metric_names, caption)
+
+# Show all algorithms with their settings
+showAllKeys(performance_data)
+```
 
 <!-- (Testing algorithm settings with Weka experimenter) -->
 ## Testing algorithm performances using different settings with Weka experimenter
