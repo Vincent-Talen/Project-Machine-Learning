@@ -368,10 +368,10 @@ Now it is known what the data is like it is time to use machine learning algorit
 ## Relevant quality metrics
 The default quality metric to measure the performance of an algorithm with is the accuracy, but accuracy is not always the most important or relevant for each project's use case. The accuracy could be less important than the speed of the model in which the classification is made. Or in some cases the data might not already be completely collected, then batch processing is not possible and stream processing should be used. With stream processing the data is continuously collected and processed fast, piece by piece, and is typically meant for when data is needed immediately.
 
-In this case the data is already fully collected and new samples are processed manually by the acting physician, thus the model does not need to look at aspects like speed. Naturally the accuracy of resulting models is important, but it is actually more important for which classifier the model is accurate. It is preferable to classify an instance as malignant over benign, because if a malignant breast mass gets classified as benign the patient might then make the decision to not get treatment even if they actually do need it. Almost all metrics that an algorithm can be scored by stem from the values in a confusion matrix.
+In this case the data is already fully collected and new samples are processed manually by the acting physician, thus the model does not need to look at aspects like speed. Naturally the accuracy of resulting models is important, which describes the fraction of instances that are correctly classified of the total instances. Another potentially important thing for this project is which type of classification errors are more important. It might be preferable to earlier classify an instance as malignant over benign if not completely sure, because if a malignant breast mass gets classified as benign the patient might then make the decision to not get treatment even if they actually do need it. Almost all metrics that an algorithm can be scored by stem from the values recorded in a confusion matrix.
 
 ### Confusion Matrix
-A standard overview that is created and shown for every model is a confusion matrix, in the confusion matrix it can be seen how many- and as what instances are classified by the model. For this dataset correctly classified malignant instances are true positive (TP), benign instances classified as malignant are false positive (FP), correctly classified benign instances are true negative (TN) and malignant instances classified as benign are false negative (FN). *Table \ref{tab:confusion-matrix-example}* is an example of a confusion matrix returned by Weka.
+A standard overview that is created and shown for models is the confusion matrix, in the confusion matrix it can be seen how instances are classified by the model versus what they actually are. For this dataset correctly classified malignant instances are true positive (TP), benign instances classified as malignant are false positive (FP), correctly classified benign instances are true negative (TN) and malignant instances classified as benign are false negative (FN). *Table \ref{tab:confusion-matrix-example}* is an example of a confusion matrix returned by Weka.
 
 \begin{table}[h]
 \centering
@@ -385,47 +385,66 @@ A standard overview that is created and shown for every model is a confusion mat
 \end{table}
 
 ### Sensitivity and Specificity
-Two important metrics for this project, and for machine learning algorithms in general, are sensitivity and specificity. These describe the probability of an instance being correctly classified as their actual classification, calculated using the values from the confusion matrix. The sensitivity is also known as the true positive rate (TPR) and is calculated as $\mathrm{TPR} = \frac{\mathrm{TP}}{ \mathrm{TP} + \mathrm{FN} }$, describing the ability of the model to correctly predict positive instances as positive. Whereas the specificity is known as the true negative rate (TNR) which describes the ability of the model to correctly predict negative instances as negative and is calculated as $\mathrm{TNR} = \frac{\mathrm{TN}}{ \mathrm{TN} + \mathrm{FP} }$.
+Two important metrics for this project, and for machine learning algorithms in general, are sensitivity and specificity. These describe the probability of an instance being correctly classified as their actual classification, calculated using the values from the confusion matrix. The sensitivity is also known as the true positive rate (TPR) and is calculated as $\mathrm{TPR} = \frac{\mathrm{TP}}{ \mathrm{TP} + \mathrm{FN} }$, describing the ability of the model to correctly predict positive instances as positive. Whereas the specificity is also known as the true negative rate (TNR) which describes the ability of the model to correctly predict negative instances as negative and is calculated as $\mathrm{TNR} = \frac{\mathrm{TN}}{ \mathrm{TN} + \mathrm{FP} }$.
 
 ### Precision
 Because it is preferred for a model to get as few malignant instances classified as benign, meaning that there will be more false positive instances. Precision, or also known as the positive predictive values (PPV) metric, describes the ratio of correctly classified positive instances to the total amount of instances that were classified as positive. Since it is desired for there to be more false positives than false negatives this is not a main metric the algorithms will be scored by but it is still very relevant. Precision is calculated as $\mathrm{PPV} = \frac{ \mathrm{TP} }{ \mathrm{TP} + \mathrm{FP} }$.
 
-### ROC and Area under Curve
-Text
+### ROC curve and Area under Curve
+Receiver Operating Characteristics (ROC) was first developed by electrical engineers and radar engineers in World War II, but it is now also widely used for machine learning to measure the performance of a model with various probability threshold settings. It illustrates the diagnostic ability of a model as it's threshold varies, by plotting the true positive rate on the y axis against the false positive rate on the x axis. The ROC curve can be reduced and normalized to a single number, called the Area under Curve (AUC), which describes the probability of a classifier correctly classifying one random positive instance and one randomly selected negative instance.
+
+The AUC of the ROC curve (AUC-ROC) can thus be used as a clear reference level for comparing algorithm performances. An AUC-ROC value of 1 would mean the model is the most optimal it could be and a value of 0 would mean the least optimal. A value of 0.5 would equate to just as good as a random guess, which is thus the worst case scenario. Even though a very low value close to 0 would not be optimal it does however classify instances consistently the wrong way around, thus if the classification is flipped, the instances are predicted correctly like if the AUC-ROC value would be close to 1. In general, algorithms with AUC-ROC values above 0.7 are considered accepted, above 0.8 are considered excellent and above 0.9 are even considered outstanding.
 
 
-<!-- (Testing algorithm performance) -->
-## Testing different machine learning algorithms' default performance
-Check best algorithms to create model and for each algorithm record the confusion matrix, other relevant quality metrics chosen and the cost-sensitive classifier.
-All these performance statistics will be saved to a table that will be read with R.
+\newpage
+<!-- (How the algorithm performance is tested) -->
+## How the performances of machine learning algorithms and their settings will be tested
+Manual exploration of algorithms and their settings can be done in the Weka Explorer but to compare a lot of different algorithms with different settings this becomes a tedious task. The Weka Experimenter is the solution to easily compare the different algorithms and their settings by enabling the user to select multiple datasets and also multiple algorithms that can all be run and tested with 10 fold cross-validation, 10 times each. An output file can be specified where each run and each cross validation gets all metrics and statistics saved to. The different algorithms' metrics can then be compared with a paired student's t-test to check for significant improvements or declines in performance. 
 
-### Baseline performance
-ZeroR and OneR are used to set a sort of baseline performance, these can be used to benchmark and compare other algorithms to.
+Even though the Weka experimenter has the ability to do this, it is only able to do so per metric and the result will the need to be manually copied to this research log. For this reason the script `src/scripts/weka_analyser_custom.R` was created with the same functionality and with the exact same correction method for the t-test as found in the Weka Experimenter Analyse tab.
 
-### Other algorithms
-Naïve Bayes, Simple Logistic, SVM (SMO), Nearest Neighbor (IBk), Decision Trees (J48/C4.5) and Random Forest.
-```{r default_settings, cache = FALSE, results = 'asis'}
-# Load performance data from file
-file_path <- "output/algorithm_performances/default.arff"
-performance_data <- loadPerformanceData(file_path)
+The resulting data from the Weka Experimenter can be loaded in using the `loadPerformanceData()` function and the comparison can then be made using `createTableWithSignificances()`, to print it in a nice format for the resulting pdf the `printNiceLatexTable()` function is used and `showAllKeys()` is called to show the used settings. Because this will be done for multiple runs this process is encapsulated in the function below for easier use.
 
-# Desired comparison fields/metrics
-comparison_fields <- c("Percent_correct", "True_positive_rate", "True_negative_rate", 
-                       "IR_precision", "Area_under_ROC")
-
-# Create table
-comparison_dt <- createTableWithSignificances(performance_df = performance_data,
-                                              comparison_fields = comparison_fields)
-
-# Pretty print with nicer column names
-metric_names <- c("Accuracy", "Sensitivity", "Specificity", "Precision", "Area under ROC")
-caption <- "Default performances of standard machine learning algorithms compared to ZeroR"
-printNiceLatexTable(comparison_dt, metric_names, caption)
-
-# Show all algorithms with their settings
-showAllKeys(performance_data)
+```{r print-performance-function, cache = FALSE}
+printPerformanceFromFile <- function(file_path, caption) {
+  # Load performance data from file
+  performance_data <- loadPerformanceData(file_path)
+  
+  # Desired comparison fields/metrics
+  comparison_fields <- c("Percent_correct", "True_positive_rate", "True_negative_rate", 
+                         "IR_precision", "Area_under_ROC")
+  # Create table
+  comparison_dt <- createTableWithSignificances(performance_df = performance_data,
+                                                test_base_selection = 1,
+                                                comparison_fields = comparison_fields)
+  
+  # Pretty print with nicer column names
+  metric_names <- c("Accuracy", "Sensitivity", "Specificity", 
+                    "Precision", "Area under ROC")
+  printNiceLatexTable(comparison_dt, metric_names, caption)
+  
+  # Show all algorithms with their settings
+  showAllKeys(performance_data)
+}
 ```
 
+In this case the following five metrics are the most relevant and important and shall be shown and compared, namely the accuracy, sensitivity, specificity, precision and AUC-ROC. To provide some sort of a baseline performance the ZeroR and OneR algorithms are included, since they are very basic and do not use a lot of logic and computation, they can thus be used to benchmark other algorithms with to see if they are better than the baseline performance.
+
+
+\newpage
+<!-- (Standard algorithms' default performance) -->
+## Some standard ML algorithms' default performance
+The ZeroR and OneR algorithms are included to show a sort of baseline performance, these can be used to benchmark and compare other algorithms to. The other standard machine learning algorithms that will be used and tested are the following: Naïve Bayes, Simple Logistic, SVM (SMO), Nearest Neighbor (IBk), Decision Trees (J48) and Random Forest.
+```{r default-settings, cache = FALSE, results = 'asis'}
+file_path <- "output/algorithm_performances/default.arff"
+caption <- "Default performances of standard machine learning algorithms compared to ZeroR"
+printPerformanceFromFile(file_path, caption)
+```
+
+Based on the performances with default settings seen in *Table \ref{tab:default-settings}*, the SimpleLogistic and SMO algorithms look to be the best performing, with RandomForest as a close third. The algorithms could still be over-fitted and the J48 tree too big, so some settings will be changed to try to improve the resulting models. For now only OneR and J48 will be dropped and further tests will be performed on the remaining algorithms.
+
+
+\newpage
 <!-- (Testing algorithm settings with Weka experimenter) -->
 ## Testing algorithm performances using different settings with Weka experimenter
 The effect of different algorithm settings with the goal of improving algorithm performance, on at least 2 machine learning algorithms. Also investigate the effect of Attribute Selection methods.  
