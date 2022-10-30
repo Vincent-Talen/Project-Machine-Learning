@@ -29,15 +29,18 @@ Project-Machine-Learning-Part1_Analysis
 │   │   ├── wdbc.data
 │   │   └── wdbc.names
 │   └── processed
-│       ├── algorithms_performance.csv
 │       └── data.arff
 ├── output
+│   ├── algorithm_performances
+│   │   └── *
 │   └── figures
+│       └── *
 └── src
     ├── rmd
     │   ├── research_log.Rmd
     │   └── report.Rmd
     ├── scripts
+    │   ├── weka_analyser_custom.R
     │   └── split_violin_plot.R
     └── report_subfiles
         ├── abbreviations.tex
@@ -48,20 +51,24 @@ Project-Machine-Learning-Part1_Analysis
         └── references.bib
 ```
 
-### research_log(.Rmd/.pdf)
-This research log has all the steps taken from the entire process, from the initial data exploration to the creation of the final machine learning algorithm. The project is easily reproducible because of this, so it's a great opportunity to learn the steps taken for creating a machine learning algorithm.
+### research_log.pdf
+This research log has all the steps taken during the entire process, from the initial data exploration up to the creation of the final machine learning model. The project is easily reproducible because of this, so it's a great opportunity to learn the steps taken for creating a machine learning algorithm.
 
-### report(.Rmd/.pdf)
-To properly report on all findings this report has been written, it gets into all the results and discusses any complications encountered or what could be improved when reproducing this project. A project proposal is also included for a possible project for the minor Application Design from the Bioinformatics Bachelor at the Hanze.
+### report.pdf
+To properly report on all findings of the project, this report has been written. The report gets into all the results and discusses any complications encountered or what could be improved when reproducing this project. A project proposal is also included for a possible project for the minor Application Design from the Bioinformatics Bachelor at the Hanze University of Applied Sciences Groningen.
 
 ### / data
 The publicly available data set was downloaded and placed in the `raw` data subdirectory for easy access, these are the `wdbc.data` and `wdbc.names` files. Because the data file does not have a header line, a codebook was created to use in tandem with the data, enabling to easily set column names, graph titles or axis labels.  
-In the `preprocessed` subdirectory is the data that is generated during this project. `data.arff` is the dataset to be used for the machine learning algorithms and  `algorithms_performance.csv` contains the performance data, such as speed, accuracy and the confusion matrix, of all the tested and tried out algorithms.
+The `preprocessed` subdirectory contains the data that is generated during this project, such as `data.arff`, which is the dataset to be used for the machine learning algorithms in Weka.
+
+### / output
+In this directory lie two subdirectories, one named `algorithm_performances` containing the performance data of runs of different algorithms with different settings. The other subdirectory is the `figures`, which houses all the generates figures from the research.
 
 ### / src
-The `src` directory houses the `scripts` and `report_subfiles` sub-directories where files are placed so the repository is uncluttered.
-- `/report_subfiles`: To keep the report text file itself as clean as possible, everything other than the actual article text is split up in separate files and these are located in the sub-directory `report_subfiles`. This way all the formatting and code does not clutter the text and makes it easier to find everything. 
-- `/scripts`: The same principle is used for all `.R` functions and scripts used in this project, these will be put in the `scripts` directory.
+The `src` directory houses three subdirectories where files are placed so the (root of the) repository is not as cluttered with loose files.  
+- `/report_subfiles`: To keep the report text file itself as clean as possible, everything other than the actual article text is split up in separate files and these are located in the subdirectory `report_subfiles`. This way all the formatting and code does not clutter the text and makes it easier to find everything.  
+- `/rmd`: The research_log and report RMarkdown files are placed here as to keep the root directory cleaner, since these are not looked at as often by people.  
+- `/scripts`: The same principle is used for all `.R` functions and scripts used in this project, these will be put in the `scripts` directory.  
 
 
 ## Installation

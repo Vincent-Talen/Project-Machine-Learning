@@ -98,19 +98,20 @@ createTableWithSignificances <- function(performance_df,
   # Test base mean metrics
   test_field_final <- getMeansForFields(test_base_data, comparison_fields)
   # Final data frame
-  final_df <- rbindlist(list(test_field_final, comparison_fields_final))
+  final_df <- data.table::rbindlist(list(test_field_final, comparison_fields_final))
   return(final_df)
 }
 # ===========================================
 printNiceLatexTable <- function(algo_comp_data, new_metric_names, caption) {
   colnames(algo_comp_data) <- c("Algorithm", new_metric_names)
-  knitr::kable(algo_comp_data, booktabs = T, caption = caption, linesep = "") %>%
+  nice_kable <- knitr::kable(algo_comp_data, booktabs = T, caption = caption, linesep = "") %>%
     kableExtra::kable_styling(latex_options = c("striped", "hold_position"), 
                               stripe_index = seq(3, nrow(algo_comp_data), 2)) %>%
     kableExtra::row_spec(0, bold = TRUE) %>%
     kableExtra::row_spec(1, hline_after = TRUE) %>%
     kableExtra::footnote(general = "'*' = significantly worse; 'v' = significantly better",
                          general_title = "")
+  print(nice_kable)
 }
 # ===========================================
 loadPerformanceData <- function(file_path) {
@@ -121,7 +122,7 @@ loadPerformanceData <- function(file_path) {
     
     # Get the short name with index per algorithm
     getNamesVectorPerAlgorithm <- function(i) {
-      short_name <- str_split(present_algorithms[i, Key_Scheme], "\\.")[[1]][4]
+      short_name <- stringr::str_split(present_algorithms[i, Key_Scheme], "\\.")[[1]][4]
       short_name_with_index <- sprintf("(%d) %s", i, short_name)
       rep(short_name_with_index, rows_per_algorithm)
     }
@@ -132,7 +133,7 @@ loadPerformanceData <- function(file_path) {
   }
   
   # Load the performance data
-  performance_data <- as.data.table( RWeka::read.arff(file_path) )
+  performance_data <- data.table::as.data.table( RWeka::read.arff(file_path) )
   # Create new column with indices and short names of algorithms
   performance_data$Key_Scheme_S <- getShortNamesWithIndices(performance_data)
   return(performance_data)
