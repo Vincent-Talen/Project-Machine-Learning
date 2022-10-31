@@ -378,8 +378,8 @@ A standard overview that is created and shown for models is the confusion matrix
 \begin{tabular}{ r r|l } 
   a & b & <- classified as \\
   \hline
-  TP & FP & a = Malignant \\
-  FN & TN & b = Benign \\
+  TP & FN & a = Malignant \\
+  FP & TN & b = Benign \\
 \end{tabular}
 \caption{\label{tab:confusion-matrix-example}Example of a confusion matrix. The columns are what the instances are classified as by the model and the rows show what their classification actually is.}
 \end{table}
@@ -405,26 +405,32 @@ Even though the Weka experimenter has the ability to do this, it is only able to
 
 The resulting data from the Weka Experimenter can be loaded in using the `loadPerformanceData()` function and the comparison can then be made using `createTableWithSignificances()`, to print it in a nice format for the resulting pdf the `printNiceLatexTable()` function is used and `showAllKeys()` is called to show the used settings. Because this will be done for multiple runs this process is encapsulated in the function below for easier use.
 
-```{r print-performance-function, cache = FALSE}
-printPerformanceFromFile <- function(file_path, caption) {
+```{r print-performance-function, cache = FALSE, results = 'asis'}
+printPerformanceFromFile <- function(file_path, caption, print_keys, show_num_false) {
   # Load performance data from file
   performance_data <- loadPerformanceData(file_path)
   
   # Desired comparison fields/metrics
-  comparison_fields <- c("Percent_correct", "True_positive_rate", "True_negative_rate", 
-                         "IR_precision", "Area_under_ROC")
+  comp_fields <- c("Percent_correct", "True_positive_rate", "True_negative_rate", 
+                   "IR_precision", "Area_under_ROC")
+  if (show_num_false) {
+    comp_fields <- c(comp_fields, "Num_false_positives", "Num_false_negatives")
+  }
+  
   # Create table
   comparison_dt <- createTableWithSignificances(performance_df = performance_data,
                                                 test_base_selection = 1,
-                                                comparison_fields = comparison_fields)
+                                                comparison_fields = comp_fields)
   
   # Pretty print with nicer column names
   metric_names <- c("Accuracy", "Sensitivity", "Specificity", 
-                    "Precision", "Area under ROC")
+                    "Precision", "AUC-ROC")
+  if (show_num_false) metric_names <- c(metric_names, "FP", "FN")
+  
   printNiceLatexTable(comparison_dt, metric_names, caption)
   
   # Show all algorithms with their settings
-  showAllKeys(performance_data)
+  if (print_keys) showAllKeys(performance_data)
 }
 ```
 
@@ -433,12 +439,16 @@ In this case the following five metrics are the most relevant and important and 
 
 \newpage
 <!-- (Standard algorithms' default performance) -->
-## Some standard ML algorithms' default performance
-The ZeroR and OneR algorithms are included to show a sort of baseline performance, these can be used to benchmark and compare other algorithms to. The other standard machine learning algorithms that will be used and tested are the following: Naïve Bayes, Simple Logistic, SVM (SMO), Nearest Neighbor (IBk), Decision Trees (J48) and Random Forest.
-```{r default-settings, cache = FALSE, results = 'asis'}
+## Machine Learning algorithms' default performance
+The algorithms ZeroR and OneR are included to show a sort of baseline performance, these can be used to benchmark and compare other algorithms to. The other standard machine learning algorithms that will be used and tested are the following: Naïve Bayes, Simple Logistic, SVM (SMO), Nearest Neighbor (IBk), Decision Trees (J48) and Random Forest.
+
+\begingroup \fontsize{8pt}{12pt}\selectfont
+```{r default-performances, cache = FALSE, results = 'asis'}
 file_path <- "output/algorithm_performances/default.arff"
 caption <- "Default performances of standard machine learning algorithms compared to ZeroR"
-printPerformanceFromFile(file_path, caption)
+printPerformanceFromFile(file_path, caption, T, F)
+```
+\endgroup
 ```
 
 Based on the performances with default settings seen in *Table \ref{tab:default-settings}*, the SimpleLogistic and SMO algorithms look to be the best performing, with RandomForest as a close third. The algorithms could still be over-fitted and the J48 tree too big, so some settings will be changed to try to improve the resulting models. For now only OneR and J48 will be dropped and further tests will be performed on the remaining algorithms.

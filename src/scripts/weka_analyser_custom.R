@@ -109,7 +109,7 @@ printNiceLatexTable <- function(algo_comp_data, new_metric_names, caption) {
                               stripe_index = seq(3, nrow(algo_comp_data), 2)) %>%
     kableExtra::row_spec(0, bold = TRUE) %>%
     kableExtra::row_spec(1, hline_after = TRUE) %>%
-    kableExtra::footnote(general = "'*' = significantly worse; 'v' = significantly better",
+    kableExtra::footnote(general = "'*' = significantly less; 'v' = significantly more",
                          general_title = "")
   print(nice_kable)
 }
