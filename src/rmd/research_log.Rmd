@@ -449,17 +449,26 @@ caption <- "Default performances of standard machine learning algorithms compare
 printPerformanceFromFile(file_path, caption, T, F)
 ```
 \endgroup
-```
 
-Based on the performances with default settings seen in *Table \ref{tab:default-settings}*, the SimpleLogistic and SMO algorithms look to be the best performing, with RandomForest as a close third. The algorithms could still be over-fitted and the J48 tree too big, so some settings will be changed to try to improve the resulting models. For now only OneR and J48 will be dropped and further tests will be performed on the remaining algorithms.
+Based on the performances with default settings seen in *Table \ref{tab:default-performances}*, the Simple Logistic, SMO algorithms and Random Forest look to be the best performing. OneR, Naïve Bayes and J48 decision trees will be dropped because the combination of their accuracy, sensitivity and area under curve are worse than other algorithms, further tests will be performed on the remaining algorithms.
+
+\newpage
+<!-- (Testing attribute selection) -->
+## Testing performances with Attribute Selection
+So now only the Simple Logistic, SMO, IBk nearest neighbor and Random Forest algorithms are left. To try to improve the models it will be tested if applying attribute selection with the algorithms helps to improve the performance.
+
+\begingroup \fontsize{8pt}{12pt}\selectfont
+```{r attribute-selection, cache = FALSE, results = 'asis'}
+file_path <- "output/algorithm_performances/attribute_selection.arff"
+caption <- "Attribute Selection"
+printPerformanceFromFile(file_path, caption, T, F)
+```
+\endgroup
+
+In the resulting table, *Table \ref{tab:attribute-selection}*, it can be seen that the `AttributeSelectedClassifier` does not improve the performance of any of the algorithms so this will not be used. One thing that can clearly be seen is that the IBk nearest neighbor algorithm falls behind the other remaining algorithms. This can also be seen when looking back at *Table \ref{tab:default-performances}*, the IBk nearest neighbor algorithm will thus also be dropped.
 
 
 \newpage
-<!-- (Testing algorithm settings with Weka experimenter) -->
-## Testing algorithm performances using different settings with Weka experimenter
-The effect of different algorithm settings with the goal of improving algorithm performance, on at least 2 machine learning algorithms. Also investigate the effect of Attribute Selection methods.  
-Applying appropriate statistical tests (with Weka Experimenter) taking into account the quality metrics specified earlier. Investigate some Meta learners (Stacking, Bagging, Boosting).
-
 <!-- (ROC and learning curve analysis) -->
 ## ROC and learning curve analysis
 ### ROC curve visualization
