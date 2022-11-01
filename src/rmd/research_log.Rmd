@@ -469,6 +469,33 @@ In the resulting table, *Table \ref{tab:attribute-selection}*, it can be seen th
 
 
 \newpage
+<!-- (Testing cost sensitive classification) -->
+## Testing performances with cost-sensitive classifier
+After dropping IBk, only Simple Logistic, SMO and Random Forest are left. From the previous tests it can already be noted that SMO is performing worse than the other remaining algorithms. To try to improve the sensitivity of the algorithms (reducing the amount of false negative errors), a cost-sensitive classifier will be applied. The cost matrix will give a bigger cost to the false negative errors to prevent them from being made as often. Three costs for false negatives will be applied and tested for each algorithm, namely the costs of 5, 10 and 20.
+
+```{r cost5, cache = FALSE, results = 'asis', echo=F}
+file_path <- "output/algorithm_performances/simple_logistic.arff"
+caption <- "Cost-sensitive classifier tested on SimpleLogistic with costs of 5, 10 and 20 for FN"
+printPerformanceFromFile(file_path, caption, F, T)
+```
+```{r cost10, cache = FALSE, results = 'asis', echo=F}
+file_path <- "output/algorithm_performances/smo.arff"
+caption <- "Cost-sensitive classifier tested on SMO with costs of 5, 10 and 20 for FN"
+printPerformanceFromFile(file_path, caption, F, T)
+```
+```{r cost20, cache = FALSE, results = 'asis', echo=F}
+file_path <- "output/algorithm_performances/random_forest.arff"
+caption <- "Cost-sensitive classifier tested on RandomForest with costs of 5, 10 and 20 for FN"
+printPerformanceFromFile(file_path, caption, F, T)
+```
+
+Using the three created tables created above significant improvements can be identified between the cost-sensitive classifiers in conjunction with the default algorithm and the default algorithm without the cost-sensitive classifier. As expected all cost-sensitive classifiers lose some accuracy but have a better sensitivity and lower false negative count like desired. Right away it can be seen that the SMO algorithm does not perform as good as Simple Logistic and Random Forest, this leaves only the latter two.
+
+The number 1 algorithms have a cost of 5 for FN, the number 2 a cost of 10 and the number 3's a cost of 20. Between the default Simple Logistic and Random Forest algorithms, and their respective cost-sensitive classifiers with FN costs of 5 and 10, is not a big difference, they're both practically equally as good. This is not the case for the cost-sensitive classifiers with a cost of 20 for FN, for these two the Simple Logistic seems to perform more like desired than Random Forest.
+
+Both Simple Logistic and Random Forest will be kept as options but for now the preference lies with either the 5-cost for both or the 20-cost for Simple Logistic.
+
+
 <!-- (ROC and learning curve analysis) -->
 ## ROC and learning curve analysis
 ### ROC curve visualization
