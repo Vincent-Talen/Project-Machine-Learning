@@ -81,7 +81,13 @@ knitr::include_graphics(here::here("output/figures/data-distribution-1.pdf"))
 \newpage
 <!-- (Project proposal for Minor ) -->
 # Project proposal for Minor 
-??
+The proposal is for a project for the minor High- Throughput High Performance Biocomputing (HTHPB) of the Bachelor Bio-Informatics at the Hanze University of Applied Sciences Groningen. 
+
+The project that was done now was to create a model with machine learning algorithms that can accurately predict breast mass malignancy using the features of nucleus boundaries. These features however are collected by a tedious process, the acting physician has to create an image with a video camera that looks through a microscope at a preparation of a taken fine needle aspirate sample. Then on a computer they have to manually roughly trace the outlines of each nucleus' boundary in the program Xcyt, after which the program computes the features that are eventually used.
+
+The goal of the project that is proposed is to improve the process of gathering and computing these features by creating a new program that can go through a lot of digital images of preparations without the intervention of humans. It should thus be able to identify the outlines of the nucleus boundaries with a neural network algorithm. 
+
+This newly created algorithm can then be connected with the model, and potentially the java wrapper, of this project, together creating a single tool that takes the digital image taken and in one go returns the prediction of the breast mass malignancy. The speed of diagnosing would thus be greatly improved and the acting physicians would have to spend less valuable time on these tedious tasks that can be automated.
 
 
 <!-- (After-Body) -->
