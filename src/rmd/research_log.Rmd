@@ -497,18 +497,31 @@ Both Simple Logistic and Random Forest will be kept as options but for now the p
 
 
 <!-- (ROC and learning curve analysis) -->
-## ROC and learning curve analysis
-### ROC curve visualization
-Visualization of one or two final algorithms with optimal settings and explaining if the result is satisfying. Takes into account the quality metrics defined previously.
+## ROC curve visualization
+One of the most used metrics is the AUC of ROC, the ROC itself can however be visualized to see what difference changing the threshold does.
 
-### Learning curve
-How much data is needed to get a reasonable performance estimate?
+```{r roc-curves, out.width = "85%", fig.cap="ROC curves of SimpleLogistic and RandomForest algorithms"}
+# Load ROC curve data
+roc_simplelogistic <- read.arff("output/roc_data/simplelogistic.arff")
+roc_randomforest <- read.arff("output/roc_data/randomforest.arff")
 
+# Create plots
+plot_simplelogistic <- ggplot(data = roc_simplelogistic) +
+  geom_point(aes(x = `False Positive Rate`, y = `True Positive Rate`, colour = Threshold)) +
+  ggtitle("SimpleLogistic (AUC = 1.00)")
+plot_randomforest <- ggplot(data = roc_randomforest) +
+  geom_point(aes(x = `False Positive Rate`, y = `True Positive Rate`, colour = Threshold)) +
+  ggtitle("RandomForest (AUC = 0.99)")
 
-\newpage
-<!-- (Java Wrapper) -->
-# Java Wrapper for final learned model
-Intens man.
+# Print both as a single grid
+my_grid <- ggpubr::ggarrange(plot_simplelogistic, plot_randomforest, 
+                             common.legend = T, legend = "bottom")
+ggpubr::annotate_figure(my_grid, 
+  top = text_grob("ROC curve visualisations for two standard algorithms", 
+                  face = "bold", size = 14))
+```
+
+The ROC curve plots for these two algorithms are almost perfect, the best case scenario is the top left, which both plots really go towards.
 
 
 <!-- (References) -->
