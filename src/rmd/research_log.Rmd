@@ -13,6 +13,11 @@ knit: (function(inputFile, encoding) {
   rmarkdown::render( inputFile, encoding = encoding, output_dir = here::here() ) })
 ---
 
+```{r, include=FALSE}
+# Copyright (c) 2022 Vincent Talen.
+# Licensed under GPLv3. See LICENSE file.
+```
+
 <!-- (Front page) -->
 \vspace{350pt}
 

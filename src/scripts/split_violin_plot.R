@@ -1,4 +1,7 @@
 #' Split Violin plot
+#' 
+#' Copyright (c) 2022 Vincent Talen.
+#' Licensed under GPLv3. See LICENSE file.
 #'
 #' This function is to plot the split violin graph.
 #' It is a combination of \url{https://github.com/PsyTeachR/introdataviz/blob/master/R/splitviolin.R} 

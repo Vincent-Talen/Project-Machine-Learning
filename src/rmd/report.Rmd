@@ -12,6 +12,11 @@ bibliography: ../report_subfiles/references.bib
 nocite: '@*'
 ---
 
+```{r, include=FALSE}
+# Copyright (c) 2022 Vincent Talen.
+# Licensed under GPLv3. See LICENSE file.
+```
+
 ```{r setup, include=FALSE}
 # Set code cunk options
 knitr::opts_chunk$set(echo = FALSE)

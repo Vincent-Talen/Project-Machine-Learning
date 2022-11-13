@@ -1,7 +1,7 @@
-# http://www.iro.umontreal.ca//~lisa/bib/pub_subject/comparative/pointeurs/nadeau_MLJ1597.pdf
-# https://www.cs.waikato.ac.nz/~eibe/pubs/bouckaert_and_frank.pdf
-
 #' Create table with strings containing means and significance labels
+#' 
+#' Copyright (c) 2022 Vincent Talen.
+#' Licensed under GPLv3. See LICENSE file.
 #'
 #' For each algorithm specified by `displayed_columns`, perform t-test for each metric 
 #'   in `comparison_fields` against the algorithm selected with `test_base_selection`.

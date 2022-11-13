@@ -1,3 +1,8 @@
+```{r, include=FALSE}
+# Copyright (c) 2022 Vincent Talen.
+# Licensed under GPLv3. See LICENSE file.
+```
+
 \newpage
 <!-- (References) -->
 # References {-}
@@ -16,4 +21,3 @@ knitr::opts_chunk$set(attr.source = ".numberLines")
 ## Appendix A: '???' {-}
 ```{r file = ""}
 ```
-
