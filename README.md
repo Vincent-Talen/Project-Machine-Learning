@@ -33,7 +33,11 @@ Project-Machine-Learning-Part1_Analysis
 ├── output
 │   ├── algorithm_performances
 │   │   └── *
-│   └── figures
+│   ├── figures
+│   │   └── *
+│   ├── models
+│   │   └── *
+│   └── roc_data
 │       └── *
 └── src
     ├── rmd
@@ -57,18 +61,22 @@ This research log has all the steps taken during the entire process, from the in
 ### report.pdf
 To properly report on all findings of the project, this report has been written. The report gets into all the results and discusses any complications encountered or what could be improved when reproducing this project. A project proposal is also included for a possible project for the minor Application Design from the Bioinformatics Bachelor at the Hanze University of Applied Sciences Groningen.
 
-### / data
+### data/
 The publicly available data set was downloaded and placed in the `raw` data subdirectory for easy access, these are the `wdbc.data` and `wdbc.names` files. Because the data file does not have a header line, a codebook was created to use in tandem with the data, enabling to easily set column names, graph titles or axis labels.  
 The `preprocessed` subdirectory contains the data that is generated during this project, such as `data.arff`, which is the dataset to be used for the machine learning algorithms in Weka.
 
-### / output
-In this directory lie two subdirectories, one named `algorithm_performances` containing the performance data of runs of different algorithms with different settings. The other subdirectory is the `figures`, which houses all the generates figures from the research.
+### output/
+In this directory lie four subdirectories:
+- `algorithm_performances`: contains the performance data of runs of different algorithms with different settings
+- `figures`: holds all the generated figures from the research log
+- `models`: exported models from Weka
+- `roc_data`: roc curve visualization data files
 
-### / src
-The `src` directory houses three subdirectories where files are placed so the (root of the) repository is not as cluttered with loose files.  
-- `/report_subfiles`: To keep the report text file itself as clean as possible, everything other than the actual article text is split up in separate files and these are located in the subdirectory `report_subfiles`. This way all the formatting and code does not clutter the text and makes it easier to find everything.  
-- `/rmd`: The research_log and report RMarkdown files are placed here as to keep the root directory cleaner, since these are not looked at as often by people.  
-- `/scripts`: The same principle is used for all `.R` functions and scripts used in this project, these will be put in the `scripts` directory.  
+### src/
+The `src/` directory houses three subdirectories where files are placed so the (root of the) repository is not as cluttered with loose files.  
+- `report_subfiles/`: To keep the report text file itself as clean as possible, everything other than the actual article text is split up in separate files and these are located in the subdirectory `report_subfiles`. This way all the formatting and code does not clutter the text and makes it easier to find everything.  
+- `rmd/`: The research_log and report RMarkdown files are placed here as to keep the root directory cleaner, since these are not looked at as often by people.  
+- `scripts/`: The same principle is used for all `.R` functions and scripts used in this project, these will be put in the `scripts` directory.  
 
 
 ## Installation
@@ -107,6 +115,8 @@ remotes::install_github("vqv/ggbiplot")
 * [Link to data set on UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+%28Diagnostic%29)
 * [PDF of original article about data set](https://minds.wisconsin.edu/bitstream/handle/1793/59692/TR1131.pdf)
 * [Secondary article by same authors](https://www.researchgate.net/profile/Nick-Street/publication/2302195_Breast_Cancer_Diagnosis_and_Prognosis_Via_Linear_Programming/links/54182c0b0cf25ebee9880a81/Breast-Cancer-Diagnosis-and-Prognosis-Via-Linear-Programming.pdf)
+* [Project Repository 1: Analysis](https://github.com/Vincent-Talen/Project-Machine-Learning-Part1_Analysis)
+* [Project Repository 2: Java Wrapper](https://github.com/Vincent-Talen/Project-Machine-Learning-Part2_Java-Wrapper)
 
 
 ## Contact
